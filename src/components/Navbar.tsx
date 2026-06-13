@@ -1,0 +1,55 @@
+'use client'
+import { useRouter, usePathname } from 'next/navigation'
+import { getUser, clearAuth } from '@/lib/auth'
+
+interface NavLink { label: string; href: string }
+
+const LINKS_TIENDA: NavLink[] = [
+  { label: 'Dashboard', href: '/tienda/dashboard' },
+  { label: 'Paquetes',  href: '/tienda/paquetes' },
+  { label: 'Integrar',  href: '/tienda/integrar' },
+]
+const LINKS_ADMIN: NavLink[] = [
+  { label: 'Dashboard', href: '/admin/dashboard' },
+  { label: 'Paquetes',  href: '/admin/paquetes' },
+  { label: 'Choferes',  href: '/admin/choferes' },
+  { label: 'Repartos',  href: '/admin/repartos' },
+]
+
+export default function Navbar() {
+  const router = useRouter()
+  const path = usePathname()
+  const user = getUser()
+  const links = user?.role === 'admin' ? LINKS_ADMIN : LINKS_TIENDA
+
+  function logout() {
+    clearAuth()
+    router.push('/login')
+  }
+
+  return (
+    <nav className="bg-brand text-white shadow-md">
+      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
+        <div className="flex items-center gap-6">
+          <span className="font-black text-lg tracking-tight">📦 Correo Postino</span>
+          <div className="hidden sm:flex gap-1">
+            {links.map(l => (
+              <a key={l.href} href={l.href}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  path.startsWith(l.href) ? 'bg-white/20' : 'hover:bg-white/10'
+                }`}>
+                {l.label}
+              </a>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-sm opacity-80 hidden sm:block">{user?.nombre}</span>
+          <button onClick={logout} className="text-sm bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-lg transition-colors">
+            Salir
+          </button>
+        </div>
+      </div>
+    </nav>
+  )
+}
