@@ -1,15 +1,15 @@
 'use client'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getUser } from '@/lib/auth'
+import { getUser, clearAuth } from '@/lib/auth'
 import Navbar from '@/components/Navbar'
 
 export default function TiendaLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   useEffect(() => {
     const user = getUser()
-    if (!user) { router.push('/login?rol=tienda'); return }
-    if (!['tienda', 'admin'].includes(user.role)) router.push('/login?rol=tienda')
+    if (!user) { router.push('/login'); return }
+    if (user.role !== 'tienda') { clearAuth(); router.push('/login') }
   }, [router])
 
   return (
