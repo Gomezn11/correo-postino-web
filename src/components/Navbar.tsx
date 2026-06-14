@@ -1,4 +1,5 @@
 'use client'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { getUser, clearAuth } from '@/lib/auth'
@@ -22,8 +23,10 @@ const LINKS_ADMIN: NavLink[] = [
 export default function Navbar() {
   const router = useRouter()
   const path = usePathname()
-  const user = getUser()
+  const [user, setUser] = useState(() => getUser())
   const links = user?.role === 'admin' ? LINKS_ADMIN : LINKS_TIENDA
+
+  useEffect(() => { setUser(getUser()) }, [])
 
   function logout() {
     clearAuth()
