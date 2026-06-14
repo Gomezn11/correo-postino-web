@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { getUser, clearAuth } from '@/lib/auth'
 
@@ -13,7 +14,9 @@ const LINKS_ADMIN: NavLink[] = [
   { label: 'Dashboard', href: '/admin/dashboard' },
   { label: 'Paquetes',  href: '/admin/paquetes' },
   { label: 'Choferes',  href: '/admin/choferes' },
+  { label: 'Tiendas',   href: '/admin/tiendas' },
   { label: 'Repartos',  href: '/admin/repartos' },
+  { label: 'Feedback',  href: '/admin/feedback' },
 ]
 
 export default function Navbar() {
@@ -34,12 +37,12 @@ export default function Navbar() {
           <span className="font-black text-lg tracking-tight">📦 Correo Postino</span>
           <div className="hidden sm:flex gap-1">
             {links.map(l => (
-              <a key={l.href} href={l.href}
+              <Link key={l.href} href={l.href}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   path.startsWith(l.href) ? 'bg-white/20' : 'hover:bg-white/10'
                 }`}>
                 {l.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
