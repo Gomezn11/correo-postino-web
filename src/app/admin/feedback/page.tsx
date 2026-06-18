@@ -2,6 +2,13 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 
+interface Grupo {
+  id: string
+  nombre: string
+  promedio: number
+  cantidad: number
+  alerta?: boolean
+}
 interface Dashboard {
   total: number
   promedio: number | null
@@ -12,6 +19,15 @@ interface Dashboard {
     zona: string | null
     respondido_at: string
   }[]
+  por_chofer: Grupo[]
+  por_zona: Grupo[]
+  por_tienda: Grupo[]
+}
+
+function colorPromedio(p: number) {
+  if (p >= 4) return 'text-green-600'
+  if (p >= 3.5) return 'text-yellow-500'
+  return 'text-red-500'
 }
 
 export default function AdminFeedbackPage() {
@@ -98,6 +114,51 @@ export default function AdminFeedbackPage() {
                 )
               })}
             </div>
+          </div>
+
+          {/* Alerta de choferes por debajo del umbral */}
+          {data.por_chofer.some(c => c.alerta) && (
+            <div className="card border-2 border-red-200 bg-red-50">
+              <h2 className="font-bold text-red-700 flex items-center gap-2">⚠️ Choferes que necesitan atención</h2>
+              <p className="text-sm text-red-600 mt-1 mb-3">Promedio por debajo de 3.5 estrellas.</p>
+              <div className="space-y-1">
+                {data.por_chofer.filter(c => c.alerta).map(c => (
+                  <div key={c.id} className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-800">{c.nombre}</span>
+                    <span className="font-bold text-red-600">{c.promedio.toFixed(1)} ⭐ ({c.cantidad})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Desglose por chofer / zona / tienda */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {([
+              ['Por chofer', data.por_chofer],
+              ['Por zona', data.por_zona],
+              ['Por tienda', data.por_tienda],
+            ] as [string, Grupo[]][]).map(([titulo, grupos]) => (
+              <div key={titulo} className="card">
+                <h2 className="font-bold mb-3">{titulo}</h2>
+                {grupos.length === 0 ? (
+                  <p className="text-sm text-gray-400">Sin datos.</p>
+                ) : (
+                  <ul className="divide-y">
+                    {grupos.map(g => (
+                      <li key={g.id} className="flex items-center justify-between py-2 text-sm">
+                        <span className="text-gray-700 truncate flex items-center gap-1">
+                          {g.alerta && <span title="Bajo promedio">⚠️</span>}
+                          {g.nombre}
+                          <span className="text-gray-400">({g.cantidad})</span>
+                        </span>
+                        <span className={`font-bold ${colorPromedio(g.promedio)}`}>{g.promedio.toFixed(1)} ⭐</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
           </div>
 
           {/* Comentarios recientes */}
