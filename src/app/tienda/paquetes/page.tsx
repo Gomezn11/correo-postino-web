@@ -8,6 +8,22 @@ interface Paquete {
   zona: string; tipo_paquete: string; estado_actual: string; created_at: string
 }
 
+async function descargarEtiqueta(paqueteId: string, qr: string) {
+  const token = localStorage.getItem('cp_token')
+  const BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
+  const r = await fetch(`${BASE}/etiquetas/${paqueteId}/pdf`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!r.ok) throw new Error('No se pudo generar la etiqueta')
+  const blob = await r.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `etiqueta_${qr}.pdf`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 const ZONAS = ['Capital', 'Zona 1', 'Zona 2', 'Zona 3']
 const TIPOS = ['normal', 'voluminoso', 'especial']
 
@@ -27,6 +43,7 @@ export default function TiendaPaquetesPage() {
   const [form, setForm] = useState(FORM_EMPTY)
   const [creando, setCreando] = useState(false)
   const [error, setError] = useState('')
+  const [descargando, setDescargando] = useState<string | null>(null)
 
   function cargar() {
     const url = '/paquetes?limit=200' + (filtroEstado ? `&estado=${filtroEstado}` : '')
@@ -213,6 +230,7 @@ export default function TiendaPaquetesPage() {
                   <th className="px-4 py-3 font-medium">Zona</th>
                   <th className="px-4 py-3 font-medium">Estado</th>
                   <th className="px-4 py-3 font-medium hidden md:table-cell">Fecha</th>
+                  <th className="px-4 py-3 font-medium">Etiqueta</th>
                   <th className="px-4 py-3 font-medium">Tracking</th>
                 </tr>
               </thead>
@@ -225,6 +243,20 @@ export default function TiendaPaquetesPage() {
                     <td className="px-4 py-3 text-gray-500">{p.zona}</td>
                     <td className="px-4 py-3"><EstadoBadge estado={p.estado_actual} /></td>
                     <td className="px-4 py-3 text-gray-400 text-xs hidden md:table-cell">{formatFecha(p.created_at)}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={async () => {
+                          setDescargando(p.id)
+                          try { await descargarEtiqueta(p.id, p.qr_interno) }
+                          catch { alert('Error al generar la etiqueta') }
+                          finally { setDescargando(null) }
+                        }}
+                        disabled={descargando === p.id}
+                        className="text-xs text-blue-600 hover:underline disabled:opacity-40"
+                      >
+                        {descargando === p.id ? 'Generando...' : '🖨 Etiqueta'}
+                      </button>
+                    </td>
                     <td className="px-4 py-3">
                       <a href={`/tracking/${p.qr_interno}`} target="_blank"
                         className="text-brand hover:underline text-xs">Ver &rarr;</a>

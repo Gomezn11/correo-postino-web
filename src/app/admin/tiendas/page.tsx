@@ -2,7 +2,12 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 
-interface Chofer { id: string; nombre: string; email: string; tarifa_por_entrega: number; created_at: string | null }
+interface Tienda {
+  id: string
+  nombre: string
+  email: string
+  created_at: string | null
+}
 
 function EyeIcon() {
   return (
@@ -22,77 +27,80 @@ function EyeOffIcon() {
   )
 }
 
-export default function AdminChoferesPage() {
-  const [choferes, setChoferes] = useState<Chofer[]>([])
+export default function AdminTiendasPage() {
+  const [tiendas, setTiendas] = useState<Tienda[]>([])
   const [loading, setLoading] = useState(true)
   const [creando, setCreando] = useState(false)
-  const [form, setForm] = useState({ nombre: '', email: '', password: '', tarifa: '0' })
+  const [form, setForm] = useState({ nombre: '', email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState('')
 
   function cargar() {
-    return api.get<Chofer[]>('/admin/usuarios?role=chofer')
-      .then(setChoferes).finally(() => setLoading(false))
+    return api.get<Tienda[]>('/admin/usuarios?role=tienda')
+      .then(setTiendas)
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => { cargar() }, [])
 
-  async function crearChofer(e: React.FormEvent) {
+  async function crearTienda(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setCreando(true)
     try {
       await api.post('/admin/usuarios', {
-        email: form.email, password: form.password,
-        nombre: form.nombre, role: 'chofer',
-        tarifa_por_entrega: parseFloat(form.tarifa) || 0,
+        email: form.email,
+        password: form.password,
+        nombre: form.nombre,
+        role: 'tienda',
+        tarifa_por_entrega: 0,
       })
-      setForm({ nombre: '', email: '', password: '', tarifa: '0' })
+      setForm({ nombre: '', email: '', password: '' })
       await cargar()
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al crear chofer')
-    } finally { setCreando(false) }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al crear tienda')
+    } finally {
+      setCreando(false)
+    }
   }
 
-  async function eliminarChofer(id: string, nombre: string) {
-    if (!confirm(`¿Eliminar al chofer ${nombre}?`)) return
+  async function eliminarTienda(id: string, nombre: string) {
+    if (!confirm(`¿Eliminar la tienda "${nombre}"?\nEsta acción no se puede deshacer.`)) return
     await api.delete(`/admin/usuarios/${id}`)
-    setChoferes(prev => prev.filter(c => c.id !== id))
-  }
-
-  function formatARS(n: number) {
-    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(n)
+    setTiendas(prev => prev.filter(t => t.id !== id))
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Choferes</h1>
+      <h1 className="text-2xl font-black">Tiendas</h1>
 
       {/* Tabla */}
       <div className="card p-0 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-gray-400">Cargando...</div>
-        ) : choferes.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">No hay choferes registrados.</div>
+        ) : tiendas.length === 0 ? (
+          <div className="p-8 text-center text-gray-400">No hay tiendas registradas.</div>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b">
               <tr className="text-left text-gray-500">
                 <th className="px-4 py-3 font-medium">Nombre</th>
                 <th className="px-4 py-3 font-medium hidden md:table-cell">Email</th>
-                <th className="px-4 py-3 font-medium">Tarifa/entrega</th>
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {choferes.map(c => (
-                <tr key={c.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{c.nombre}</td>
-                  <td className="px-4 py-3 text-gray-500 hidden md:table-cell">{c.email}</td>
-                  <td className="px-4 py-3 text-green-600 font-semibold">{formatARS(c.tarifa_por_entrega)}</td>
+              {tiendas.map(t => (
+                <tr key={t.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium">{t.nombre}</td>
+                  <td className="px-4 py-3 text-gray-500 hidden md:table-cell">{t.email}</td>
                   <td className="px-4 py-3">
-                    <button onClick={() => eliminarChofer(c.id, c.nombre)}
-                      className="text-xs text-red-500 hover:underline">Eliminar</button>
+                    <button
+                      onClick={() => eliminarTienda(t.id, t.nombre)}
+                      className="text-xs text-red-500 hover:underline"
+                    >
+                      Eliminar
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -101,19 +109,26 @@ export default function AdminChoferesPage() {
         )}
       </div>
 
-      {/* Crear chofer */}
+      {/* Crear tienda */}
       <div className="card max-w-md">
-        <h2 className="font-bold mb-4">Agregar chofer</h2>
-        <form onSubmit={crearChofer} className="space-y-3">
+        <h2 className="font-bold mb-4">Agregar tienda</h2>
+        <form onSubmit={crearTienda} className="space-y-3">
           <div>
-            <label className="label">Nombre completo</label>
-            <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })}
-              className="input" required placeholder="Juan Pérez" />
+            <label className="label">Nombre de la tienda</label>
+            <input
+              value={form.nombre}
+              onChange={e => setForm({ ...form, nombre: e.target.value })}
+              className="input" required placeholder="Mi Tienda Online"
+            />
           </div>
           <div>
             <label className="label">Email</label>
-            <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-              className="input" required placeholder="juan@empresa.com" />
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
+              className="input" required placeholder="tienda@ejemplo.com"
+            />
           </div>
           <div>
             <label className="label">Contraseña inicial</label>
@@ -132,14 +147,17 @@ export default function AdminChoferesPage() {
               </button>
             </div>
           </div>
-          <div>
-            <label className="label">Tarifa por entrega (ARS)</label>
-            <input type="number" value={form.tarifa} onChange={e => setForm({ ...form, tarifa: e.target.value })}
-              className="input" min="0" step="100" placeholder="1500" />
-          </div>
-          {error && <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded p-2">{error}</p>}
-          <button type="submit" disabled={creando} className="btn-primary w-full disabled:opacity-50">
-            {creando ? 'Creando...' : '+ Agregar chofer'}
+          {error && (
+            <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded p-2">
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={creando}
+            className="btn-primary w-full disabled:opacity-50"
+          >
+            {creando ? 'Creando...' : '+ Agregar tienda'}
           </button>
         </form>
       </div>
