@@ -1,21 +1,39 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+
+const MapaEnVivo = dynamic(() => import('@/components/MapaEnVivo'), {
+  ssr: false,
+  loading: () => <div className="h-full flex items-center justify-center text-gray-400 text-sm">Cargando mapa...</div>,
+})
 
 interface HistorialItem { estado: string; label: string; fecha: string; nota: string }
 interface TrackingData {
   qr_interno: string; estado_actual: string; estado_label: string
   comprador_nombre: string; zona: string; tipo_paquete: string
   fecha_ingreso: string; historial: HistorialItem[]
+  tiene_mapa: boolean; puede_reprogramar: boolean
 }
+interface Ubicacion { disponible: boolean; lat?: number; lng?: number; actualizado_at?: string }
 
 const ICONO: Record<string, string> = {
-  pendiente_retiro: '🕐', en_deposito: '🏭', en_camino: '🚚',
-  entregado: '✅', no_entregado_ausente: '🚪', no_entregado_domicilio_no_encontrado: '❓', no_cerrado: '🔒',
+  pendiente_colecta: '🕐', pendiente_retiro: '🕐', en_centro_distribucion: '🏭', en_deposito: '🏭',
+  despachado: '📦', en_camino: '🚚',
+  entregado: '✅', no_entregado_ausente: '🚪', no_entregado_domicilio_no_encontrado: '❓',
+  no_cerrado: '🔒', reprogramado_por_comprador: '📅', reprogramado_por_logistica: '📅',
 }
+
+const API = process.env.NEXT_PUBLIC_API_URL
 
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+function manana(): string {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  return d.toISOString().slice(0, 10)
 }
 
 export default function TrackingPage() {
@@ -25,13 +43,69 @@ export default function TrackingPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/tracking/${qr}`)
+  // C2 — ubicación en vivo
+  const [ubic, setUbic] = useState<Ubicacion | null>(null)
+
+  // C7 — reprogramación
+  const [mostrarForm, setMostrarForm] = useState(false)
+  const [fecha, setFecha] = useState(manana())
+  const [franja, setFranja] = useState('todo_el_dia')
+  const [motivoRep, setMotivoRep] = useState('')
+  const [enviandoRep, setEnviandoRep] = useState(false)
+  const [reprogramado, setReprogramado] = useState(false)
+  const [errorRep, setErrorRep] = useState('')
+
+  const cargar = useCallback(() => {
+    fetch(`${API}/tracking/${qr}`)
       .then(r => { if (!r.ok) throw new Error('Paquete no encontrado'); return r.json() })
       .then(setData)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [qr])
+
+  useEffect(() => { cargar() }, [cargar])
+
+  // Polling de ubicación cada 20s mientras esté en camino
+  useEffect(() => {
+    if (!data?.tiene_mapa) return
+    let activo = true
+    const fetchUbic = () => {
+      fetch(`${API}/tracking/${qr}/ubicacion`)
+        .then(r => r.json())
+        .then(u => { if (activo) setUbic(u) })
+        .catch(() => {})
+    }
+    fetchUbic()
+    const id = setInterval(fetchUbic, 20_000)
+    return () => { activo = false; clearInterval(id) }
+  }, [data?.tiene_mapa, qr])
+
+  async function enviarReprogramacion() {
+    setEnviandoRep(true)
+    setErrorRep('')
+    try {
+      const r = await fetch(`${API}/tracking/${qr}/reprogramar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fecha_solicitada: fecha,
+          franja_horaria: franja,
+          motivo_comprador: motivoRep || null,
+        }),
+      })
+      if (!r.ok) {
+        const e = await r.json().catch(() => ({ detail: 'Error al reprogramar' }))
+        throw new Error(e.detail || 'Error al reprogramar')
+      }
+      setReprogramado(true)
+      setMostrarForm(false)
+      cargar()
+    } catch (e) {
+      setErrorRep(e instanceof Error ? e.message : 'Error al reprogramar')
+    } finally {
+      setEnviandoRep(false)
+    }
+  }
 
   const esTerminal = data && ['entregado', 'no_entregado_ausente', 'no_entregado_domicilio_no_encontrado', 'no_cerrado'].includes(data.estado_actual)
   const esEntregado = data?.estado_actual === 'entregado'
@@ -63,6 +137,78 @@ export default function TrackingPage() {
               <div className="text-sm text-gray-500">Hola, <strong>{data.comprador_nombre}</strong> — tu paquete está en {data.zona}</div>
               <div className="text-xs text-gray-400 font-mono">{data.qr_interno}</div>
             </div>
+
+            {/* C2 — Mapa en vivo (solo en camino) */}
+            {data.tiene_mapa && (
+              <div className="card p-0 overflow-hidden">
+                <div className="px-4 py-3 border-b bg-brand/5 flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                  </span>
+                  <span className="font-bold text-sm text-gray-800">Tu repartidor está en camino</span>
+                </div>
+                <div className="h-64">
+                  {ubic?.disponible && ubic.lat != null && ubic.lng != null ? (
+                    <MapaEnVivo lat={ubic.lat} lng={ubic.lng} actualizadoAt={ubic.actualizado_at} />
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-gray-400 text-sm text-center px-4">
+                      Esperando la ubicación del repartidor...
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* C7 — Reprogramación */}
+            {reprogramado && (
+              <div className="card bg-green-50 border-2 border-green-200 text-center space-y-1">
+                <div className="text-2xl">📅</div>
+                <p className="font-semibold text-green-800">¡Listo! Anotamos tu pedido de reprogramación.</p>
+                <p className="text-sm text-green-600">Nos vamos a comunicar si hay algún cambio.</p>
+              </div>
+            )}
+
+            {data.puede_reprogramar && !reprogramado && !mostrarForm && (
+              <button onClick={() => setMostrarForm(true)} className="btn-ghost w-full">
+                📅 ¿No vas a estar? Reprogramá tu entrega
+              </button>
+            )}
+
+            {mostrarForm && !reprogramado && (
+              <div className="card space-y-4">
+                <h3 className="font-bold text-gray-800">Reprogramá tu entrega</h3>
+                <div>
+                  <label className="label">Fecha</label>
+                  <input type="date" value={fecha} min={manana()}
+                    onChange={e => setFecha(e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label className="label">Franja horaria</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[['manana', '🌅 Mañana'], ['tarde', '🌇 Tarde'], ['todo_el_dia', '🕐 Cualquiera']].map(([v, l]) => (
+                      <button key={v} onClick={() => setFranja(v)}
+                        className={`text-xs font-semibold py-2 rounded-lg border-2 transition-colors ${
+                          franja === v ? 'border-brand bg-brand/10 text-brand' : 'border-gray-200 text-gray-500'}`}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="label">Motivo (opcional)</label>
+                  <input type="text" value={motivoRep} onChange={e => setMotivoRep(e.target.value)}
+                    placeholder="Ej: trabajo hasta las 18hs" className="input" />
+                </div>
+                {errorRep && <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-2">{errorRep}</p>}
+                <div className="flex gap-2">
+                  <button onClick={() => setMostrarForm(false)} className="btn-ghost flex-1">Cancelar</button>
+                  <button onClick={enviarReprogramacion} disabled={enviandoRep} className="btn-primary flex-1 disabled:opacity-50">
+                    {enviandoRep ? 'Enviando...' : 'Confirmar'}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Historial */}
             <div className="card">
