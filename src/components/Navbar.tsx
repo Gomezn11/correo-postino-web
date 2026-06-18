@@ -17,6 +17,7 @@ const LINKS_ADMIN: NavLink[] = [
   { label: 'Choferes',      href: '/admin/choferes' },
   { label: 'Tiendas',       href: '/admin/tiendas' },
   { label: 'Repartos',      href: '/admin/repartos' },
+  { label: 'Mapa',          href: '/admin/mapa' },
   { label: 'Tarifas',       href: '/admin/tarifas' },
   { label: 'Liquidaciones', href: '/admin/liquidaciones' },
   { label: 'Feedback',      href: '/admin/feedback' },

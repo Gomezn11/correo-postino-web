@@ -259,7 +259,15 @@ export default function TiendaPaquetesPage() {
                     </td>
                     <td className="px-4 py-3">
                       <a href={`/tracking/${p.qr_interno}`} target="_blank"
-                        className="text-brand hover:underline text-xs">Ver &rarr;</a>
+                        className="text-brand hover:underline text-xs inline-flex items-center gap-1">
+                        {p.estado_actual === 'en_camino' && (
+                          <span className="relative flex h-2 w-2" title="En camino — seguilo en el mapa">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                          </span>
+                        )}
+                        {p.estado_actual === 'en_camino' ? 'En vivo' : 'Ver'} &rarr;
+                      </a>
                     </td>
                   </tr>
                 ))}
