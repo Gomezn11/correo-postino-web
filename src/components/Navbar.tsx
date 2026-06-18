@@ -12,12 +12,14 @@ const LINKS_TIENDA: NavLink[] = [
   { label: 'Integrar',  href: '/tienda/integrar' },
 ]
 const LINKS_ADMIN: NavLink[] = [
-  { label: 'Dashboard', href: '/admin/dashboard' },
-  { label: 'Paquetes',  href: '/admin/paquetes' },
-  { label: 'Choferes',  href: '/admin/choferes' },
-  { label: 'Tiendas',   href: '/admin/tiendas' },
-  { label: 'Repartos',  href: '/admin/repartos' },
-  { label: 'Feedback',  href: '/admin/feedback' },
+  { label: 'Dashboard',     href: '/admin/dashboard' },
+  { label: 'Paquetes',      href: '/admin/paquetes' },
+  { label: 'Choferes',      href: '/admin/choferes' },
+  { label: 'Tiendas',       href: '/admin/tiendas' },
+  { label: 'Repartos',      href: '/admin/repartos' },
+  { label: 'Tarifas',       href: '/admin/tarifas' },
+  { label: 'Liquidaciones', href: '/admin/liquidaciones' },
+  { label: 'Feedback',      href: '/admin/feedback' },
 ]
 
 export default function Navbar() {
