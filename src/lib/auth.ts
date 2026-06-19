@@ -6,22 +6,22 @@ export interface User {
 
 export function getUser(): User | null {
   if (typeof window === 'undefined') return null
-  try { return JSON.parse(localStorage.getItem('cp_user') ?? 'null') } catch { return null }
+  try { return JSON.parse(sessionStorage.getItem('cp_user') ?? 'null') } catch { return null }
 }
 
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null
-  return localStorage.getItem('cp_token')
+  return sessionStorage.getItem('cp_token')
 }
 
 export function setAuth(token: string, user: User) {
-  localStorage.setItem('cp_token', token)
-  localStorage.setItem('cp_user', JSON.stringify(user))
+  sessionStorage.setItem('cp_token', token)
+  sessionStorage.setItem('cp_user', JSON.stringify(user))
 }
 
 export function clearAuth() {
-  localStorage.removeItem('cp_token')
-  localStorage.removeItem('cp_user')
+  sessionStorage.removeItem('cp_token')
+  sessionStorage.removeItem('cp_user')
 }
 
 export async function login(email: string, password: string): Promise<User> {

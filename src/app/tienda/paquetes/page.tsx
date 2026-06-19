@@ -9,7 +9,7 @@ interface Paquete {
 }
 
 async function descargarEtiqueta(paqueteId: string, qr: string) {
-  const token = localStorage.getItem('cp_token')
+  const token = sessionStorage.getItem('cp_token')
   const BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
   const r = await fetch(`${BASE}/etiquetas/${paqueteId}/pdf`, {
     headers: { Authorization: `Bearer ${token}` },

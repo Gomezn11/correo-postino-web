@@ -2,7 +2,7 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 function getToken() {
   if (typeof window === 'undefined') return null
-  return localStorage.getItem('cp_token')
+  return sessionStorage.getItem('cp_token')
 }
 
 async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
