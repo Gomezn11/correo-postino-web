@@ -25,7 +25,11 @@ export function clearAuth() {
 }
 
 export async function login(email: string, password: string): Promise<User> {
+  // Limpiar cualquier sesión previa antes de entrar (evita cruces admin/tienda
+  // en el mismo navegador: token de una cuenta + datos de otra).
+  clearAuth()
   const r = await api.post<{ access_token: string; user: User }>('/auth/login', { email, password })
+  if (!r.access_token || !r.user) throw new Error('Respuesta de login inválida')
   setAuth(r.access_token, r.user)
   return r.user
 }
