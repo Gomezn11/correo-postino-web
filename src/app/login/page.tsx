@@ -52,8 +52,10 @@ function LoginForm() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-brand to-blue-800 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm">
+    <main className="relative min-h-screen overflow-hidden bg-animated flex items-center justify-center px-4">
+      <div className="blob bg-blue-400 w-72 h-72 top-[-40px] left-[-40px]" />
+      <div className="blob bg-violet-500 w-72 h-72 bottom-[-50px] right-[-40px]" style={{ animationDelay: '4s' }} />
+      <div className="relative z-10 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 w-full max-w-sm animate-in">
         <div className="text-center mb-6">
           <div className="text-4xl mb-2">📦</div>
           <h1 className="text-xl font-black text-gray-800">Correo Postino</h1>

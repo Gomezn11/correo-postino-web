@@ -49,7 +49,7 @@ export default function AdminRepartosPage() {
           <div className="p-8 text-center text-gray-400">No hay repartos.</div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
               <tr className="text-left text-gray-500">
                 <th className="px-4 py-3 font-medium">ID</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
@@ -58,9 +58,9 @@ export default function AdminRepartosPage() {
                 <th className="px-4 py-3 font-medium">Creado</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y dark:divide-gray-800">
               {repartos.map(r => (
-                <tr key={r.id} className="hover:bg-gray-50">
+                <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                   <td className="px-4 py-3 font-mono text-xs text-gray-500">{r.id.slice(0, 8)}...</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ESTADO_ESTILOS[r.estado] ?? 'bg-gray-100 text-gray-600'}`}>

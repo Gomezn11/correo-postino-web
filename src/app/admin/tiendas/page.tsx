@@ -82,16 +82,16 @@ export default function AdminTiendasPage() {
           <div className="p-8 text-center text-gray-400">No hay tiendas registradas.</div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
               <tr className="text-left text-gray-500">
                 <th className="px-4 py-3 font-medium">Nombre</th>
                 <th className="px-4 py-3 font-medium hidden md:table-cell">Email</th>
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y dark:divide-gray-800">
               {tiendas.map(t => (
-                <tr key={t.id} className="hover:bg-gray-50">
+                <tr key={t.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                   <td className="px-4 py-3 font-medium">{t.nombre}</td>
                   <td className="px-4 py-3 text-gray-500 hidden md:table-cell">{t.email}</td>
                   <td className="px-4 py-3">

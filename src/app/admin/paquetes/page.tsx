@@ -91,7 +91,7 @@ export default function AdminPaquetesPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
                 <tr className="text-left text-gray-500">
                   <th className="px-3 py-3 font-medium">QR</th>
                   <th className="px-3 py-3 font-medium">Destinatario</th>
@@ -102,9 +102,9 @@ export default function AdminPaquetesPage() {
                   <th className="px-3 py-3 font-medium">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y dark:divide-gray-800">
                 {filtrados.map(p => (
-                  <tr key={p.id} className="hover:bg-gray-50">
+                  <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                     <td className="px-3 py-2 font-mono text-xs text-gray-500">{p.qr_interno}</td>
                     <td className="px-3 py-2 font-medium max-w-[150px] truncate">{p.comprador_nombre}</td>
                     <td className="px-3 py-2 text-gray-500 hidden lg:table-cell">{p.zona}</td>

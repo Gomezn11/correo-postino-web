@@ -76,7 +76,7 @@ export default function AdminChoferesPage() {
           <div className="p-8 text-center text-gray-400">No hay choferes registrados.</div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
               <tr className="text-left text-gray-500">
                 <th className="px-4 py-3 font-medium">Nombre</th>
                 <th className="px-4 py-3 font-medium hidden md:table-cell">Email</th>
@@ -84,9 +84,9 @@ export default function AdminChoferesPage() {
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y dark:divide-gray-800">
               {choferes.map(c => (
-                <tr key={c.id} className="hover:bg-gray-50">
+                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                   <td className="px-4 py-3 font-medium">{c.nombre}</td>
                   <td className="px-4 py-3 text-gray-500 hidden md:table-cell">{c.email}</td>
                   <td className="px-4 py-3 text-green-600 font-semibold">{formatARS(c.tarifa_por_entrega)}</td>

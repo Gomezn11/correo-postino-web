@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { getUser, clearAuth } from '@/lib/auth'
+import ThemeToggle from '@/components/ThemeToggle'
 
 interface NavLink { label: string; href: string }
 
@@ -52,8 +53,9 @@ export default function Navbar() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <span className="text-sm opacity-80 hidden sm:block">{user?.nombre}</span>
+          <ThemeToggle />
           <button onClick={logout} className="text-sm bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-lg transition-colors">
             Salir
           </button>

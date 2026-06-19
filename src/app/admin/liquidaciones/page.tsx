@@ -74,11 +74,11 @@ export default function AdminLiquidacionesPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-fit">
         {([['margen', 'Margen'], ['tiendas', 'Tiendas'], ['choferes', 'Choferes']] as [Tab, string][]).map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              tab === t ? 'bg-white shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
+              tab === t ? 'bg-white dark:bg-gray-700 shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
             {label}
           </button>
         ))}
@@ -117,7 +117,7 @@ export default function AdminLiquidacionesPage() {
                     : <ul className="divide-y text-sm">
                         {margen.desglose_tiendas.filter(t => t.total > 0).map(t => (
                           <li key={t.tienda_id} className="flex justify-between py-2">
-                            <span className="text-gray-700">{t.nombre} <span className="text-gray-400">({t.cantidad})</span></span>
+                            <span className="text-gray-700 dark:text-gray-200">{t.nombre} <span className="text-gray-400">({t.cantidad})</span></span>
                             <span className="font-semibold">{money(t.total)}</span>
                           </li>
                         ))}
@@ -130,7 +130,7 @@ export default function AdminLiquidacionesPage() {
                     : <ul className="divide-y text-sm">
                         {margen.desglose_choferes.filter(c => c.total > 0).map(c => (
                           <li key={c.chofer_id} className="flex justify-between py-2">
-                            <span className="text-gray-700">{c.nombre} <span className="text-gray-400">({c.cantidad})</span></span>
+                            <span className="text-gray-700 dark:text-gray-200">{c.nombre} <span className="text-gray-400">({c.cantidad})</span></span>
                             <span className="font-semibold">{money(c.total)}</span>
                           </li>
                         ))}
@@ -143,7 +143,7 @@ export default function AdminLiquidacionesPage() {
           {/* ---------- TIENDAS ---------- */}
           {tab === 'tiendas' && tiendas && (
             <div className="card p-0 overflow-hidden">
-              <div className="flex justify-between items-center px-4 py-3 bg-gray-50 border-b">
+              <div className="flex justify-between items-center px-4 py-3 bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
                 <span className="font-bold">Total a facturar</span>
                 <span className="font-black text-lg text-brand">{money(tiendas.total_general)}</span>
               </div>
@@ -151,7 +151,7 @@ export default function AdminLiquidacionesPage() {
                 <div className="p-8 text-center text-gray-400">No hay tiendas.</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b text-left text-gray-500">
+                  <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800 text-left text-gray-500">
                     <tr>
                       <th className="px-4 py-3 font-medium">Tienda</th>
                       <th className="px-4 py-3 font-medium text-center">Envíos</th>
@@ -159,9 +159,9 @@ export default function AdminLiquidacionesPage() {
                       <th className="px-4 py-3 font-medium text-right">Excel</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y dark:divide-gray-800">
                     {tiendas.tiendas.map(t => (
-                      <tr key={t.tienda_id} className="hover:bg-gray-50">
+                      <tr key={t.tienda_id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                         <td className="px-4 py-3 font-medium">{t.nombre}</td>
                         <td className="px-4 py-3 text-center text-gray-600">{t.cantidad}</td>
                         <td className="px-4 py-3 text-right font-semibold">{money(t.total)}</td>
@@ -183,7 +183,7 @@ export default function AdminLiquidacionesPage() {
           {/* ---------- CHOFERES ---------- */}
           {tab === 'choferes' && choferes && (
             <div className="card p-0 overflow-hidden">
-              <div className="flex justify-between items-center px-4 py-3 bg-gray-50 border-b">
+              <div className="flex justify-between items-center px-4 py-3 bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
                 <span className="font-bold">Total a pagar</span>
                 <span className="font-black text-lg text-brand">{money(choferes.total_general)}</span>
               </div>
@@ -191,7 +191,7 @@ export default function AdminLiquidacionesPage() {
                 <div className="p-8 text-center text-gray-400">No hay choferes.</div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b text-left text-gray-500">
+                  <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800 text-left text-gray-500">
                     <tr>
                       <th className="px-4 py-3 font-medium">Chofer</th>
                       <th className="px-4 py-3 font-medium text-center">Entregas</th>
@@ -199,9 +199,9 @@ export default function AdminLiquidacionesPage() {
                       <th className="px-4 py-3 font-medium text-right">Comprobante</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y dark:divide-gray-800">
                     {choferes.choferes.map(c => (
-                      <tr key={c.chofer_id} className="hover:bg-gray-50">
+                      <tr key={c.chofer_id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                         <td className="px-4 py-3 font-medium">{c.nombre}</td>
                         <td className="px-4 py-3 text-center text-gray-600">{c.cantidad}</td>
                         <td className="px-4 py-3 text-right font-semibold">{money(c.total)}</td>

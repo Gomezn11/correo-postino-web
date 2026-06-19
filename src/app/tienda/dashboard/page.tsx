@@ -53,7 +53,7 @@ export default function TiendaDashboard() {
           {/* Recientes */}
           <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-gray-800">Paquetes recientes</h2>
+              <h2 className="font-bold text-gray-800 dark:text-gray-100">Paquetes recientes</h2>
               <a href="/tienda/paquetes" className="text-sm text-brand hover:underline">Ver todos →</a>
             </div>
             {recientes.length === 0 ? (
@@ -69,9 +69,9 @@ export default function TiendaDashboard() {
                       <th className="pb-2 font-medium">Estado</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y dark:divide-gray-800">
                     {recientes.map(p => (
-                      <tr key={p.id} className="hover:bg-gray-50">
+                      <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                         <td className="py-2 font-mono text-xs text-gray-500">{p.qr_interno}</td>
                         <td className="py-2">{p.comprador_nombre}</td>
                         <td className="py-2 text-gray-500">{p.zona}</td>

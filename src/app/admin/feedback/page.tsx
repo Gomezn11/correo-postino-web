@@ -124,7 +124,7 @@ export default function AdminFeedbackPage() {
               <div className="space-y-1">
                 {data.por_chofer.filter(c => c.alerta).map(c => (
                   <div key={c.id} className="flex justify-between text-sm">
-                    <span className="font-medium text-gray-800">{c.nombre}</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">{c.nombre}</span>
                     <span className="font-bold text-red-600">{c.promedio.toFixed(1)} ⭐ ({c.cantidad})</span>
                   </div>
                 ))}
@@ -144,10 +144,10 @@ export default function AdminFeedbackPage() {
                 {grupos.length === 0 ? (
                   <p className="text-sm text-gray-400">Sin datos.</p>
                 ) : (
-                  <ul className="divide-y">
+                  <ul className="divide-y dark:divide-gray-800">
                     {grupos.map(g => (
                       <li key={g.id} className="flex items-center justify-between py-2 text-sm">
-                        <span className="text-gray-700 truncate flex items-center gap-1">
+                        <span className="text-gray-700 dark:text-gray-200 truncate flex items-center gap-1">
                           {g.alerta && <span title="Bajo promedio">⚠️</span>}
                           {g.nombre}
                           <span className="text-gray-400">({g.cantidad})</span>
@@ -163,7 +163,7 @@ export default function AdminFeedbackPage() {
 
           {/* Comentarios recientes */}
           <div className="card p-0 overflow-hidden">
-            <div className="px-4 py-3 border-b bg-gray-50">
+            <div className="px-4 py-3 border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-800/60">
               <h2 className="font-bold">Comentarios recientes</h2>
             </div>
             {data.recientes.length === 0 ? (
@@ -171,7 +171,7 @@ export default function AdminFeedbackPage() {
                 Sin calificaciones todavía.
               </div>
             ) : (
-              <div className="divide-y">
+              <div className="divide-y dark:divide-gray-800">
                 {data.recientes.map((r, i) => (
                   <div key={i} className="px-4 py-3">
                     <div className="flex items-center justify-between mb-1">
@@ -179,7 +179,7 @@ export default function AdminFeedbackPage() {
                       <span className="text-xs text-gray-400">{fecha(r.respondido_at)}</span>
                     </div>
                     {r.comentario && (
-                      <p className="text-sm text-gray-700 mt-1">{r.comentario}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200 mt-1">{r.comentario}</p>
                     )}
                     {r.zona && (
                       <p className="text-xs text-gray-400 mt-0.5">Zona: {r.zona}</p>

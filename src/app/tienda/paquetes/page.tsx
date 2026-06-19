@@ -171,7 +171,7 @@ export default function TiendaPaquetesPage() {
               <input type="checkbox" id="horario_comercial" checked={form.horario_comercial}
                 onChange={e => set('horario_comercial', e.target.checked)}
                 className="w-4 h-4 accent-blue-600" />
-              <label htmlFor="horario_comercial" className="text-sm text-gray-700">
+              <label htmlFor="horario_comercial" className="text-sm text-gray-700 dark:text-gray-200">
                 Entrega solo en horario comercial
               </label>
             </div>
@@ -193,7 +193,7 @@ export default function TiendaPaquetesPage() {
                 {creando ? 'Creando...' : 'Crear paquete'}
               </button>
               <button type="button" onClick={() => { setMostrarForm(false); setError('') }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/40">
                 Cancelar
               </button>
             </div>
@@ -222,7 +222,7 @@ export default function TiendaPaquetesPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
                 <tr className="text-left text-gray-500">
                   <th className="px-4 py-3 font-medium">QR</th>
                   <th className="px-4 py-3 font-medium">Destinatario</th>
@@ -234,9 +234,9 @@ export default function TiendaPaquetesPage() {
                   <th className="px-4 py-3 font-medium">Tracking</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y dark:divide-gray-800">
                 {filtrados.map(p => (
-                  <tr key={p.id} className="hover:bg-gray-50">
+                  <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                     <td className="px-4 py-3 font-mono text-xs text-gray-500">{p.qr_interno}</td>
                     <td className="px-4 py-3 font-medium">{p.comprador_nombre}</td>
                     <td className="px-4 py-3 text-gray-500 hidden md:table-cell text-xs max-w-[180px] truncate">{p.comprador_direccion}</td>

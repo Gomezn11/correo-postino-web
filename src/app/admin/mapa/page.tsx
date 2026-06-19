@@ -44,7 +44,7 @@ export default function AdminMapaPage() {
       ) : choferes.length === 0 ? (
         <div className="card text-center py-12 space-y-2">
           <div className="text-4xl">🗺️</div>
-          <p className="font-semibold text-gray-700">No hay repartos en curso ahora</p>
+          <p className="font-semibold text-gray-700 dark:text-gray-200">No hay repartos en curso ahora</p>
           <p className="text-sm text-gray-400">Cuando un chofer inicie su reparto, vas a verlo moverse acá.</p>
         </div>
       ) : (

@@ -107,15 +107,15 @@ export default function AdminTarifasPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-fit">
         <button onClick={() => setTab('tiendas')}
           className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
-            esTienda ? 'bg-white shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
+            esTienda ? 'bg-white dark:bg-gray-700 shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
           Tiendas (ingresos)
         </button>
         <button onClick={() => setTab('choferes')}
           className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
-            !esTienda ? 'bg-white shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
+            !esTienda ? 'bg-white dark:bg-gray-700 shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
           Choferes (costos)
         </button>
       </div>
@@ -148,7 +148,7 @@ export default function AdminTarifasPage() {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
                     <tr className="text-left text-gray-500">
                       <th className="px-4 py-3 font-medium">Zona</th>
                       {tipos.map(t => (
@@ -156,10 +156,10 @@ export default function AdminTarifasPage() {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y dark:divide-gray-800">
                     {zonas.map(z => (
-                      <tr key={z} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">{z}</td>
+                      <tr key={z} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
+                        <td className="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">{z}</td>
                         {tipos.map(t => (
                           <td key={t} className="px-3 py-2">
                             <div className="relative">
@@ -181,7 +181,7 @@ export default function AdminTarifasPage() {
                 </table>
               </div>
 
-              <div className="flex items-center justify-between gap-3 px-4 py-3 bg-gray-50 border-t">
+              <div className="flex items-center justify-between gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800/60 border-t dark:border-gray-800">
                 <span className={`text-sm transition-opacity ${saved ? 'opacity-100 text-green-600' : 'opacity-0'}`}>
                   ✓ Tarifas guardadas
                 </span>
