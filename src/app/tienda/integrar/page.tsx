@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 
 interface Integracion {
-  id: string; plataforma: string; tienda_nombre: string; activa: boolean; creado_en: string
+  id: string; plataforma: string; external_user_id: string; activo: boolean; created_at: string
 }
 
 export default function TiendaIntegrarPage() {
@@ -21,8 +21,8 @@ export default function TiendaIntegrarPage() {
   async function conectarML() {
     setConectando(true)
     try {
-      const r = await api.get<{ url: string }>('/integraciones/mercadolibre/conectar')
-      window.location.href = r.url
+      const r = await api.get<{ auth_url: string }>('/integraciones/mercadolibre/conectar')
+      window.location.href = r.auth_url
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : 'Error')
       setConectando(false)
@@ -35,7 +35,7 @@ export default function TiendaIntegrarPage() {
     setIntegraciones(prev => prev.filter(i => i.id !== id))
   }
 
-  const mlConectada = integraciones.find(i => i.plataforma === 'mercadolibre' && i.activa)
+  const mlConectada = integraciones.find(i => i.plataforma === 'mercadolibre' && i.activo)
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -57,7 +57,7 @@ export default function TiendaIntegrarPage() {
         ) : mlConectada ? (
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
-              <span>✅</span> Conectado como <strong>{mlConectada.tienda_nombre}</strong>
+              <span>✅</span> Conectado <span className="text-gray-400">(cuenta ML #{mlConectada.external_user_id})</span>
             </div>
             <button onClick={() => desconectar(mlConectada.id)} className="btn-danger text-sm">
               Desconectar
