@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 
 interface Integracion {
-  id: string; plataforma: string; external_user_id: string; activo: boolean; created_at: string
+  id: string; plataforma: string; external_user_id: string; external_user_nickname: string; activo: boolean; created_at: string
 }
 
 export default function TiendaIntegrarPage() {
@@ -57,7 +57,7 @@ export default function TiendaIntegrarPage() {
         ) : mlConectada ? (
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
-              <span>✅</span> Conectado <span className="text-gray-400">(cuenta ML #{mlConectada.external_user_id})</span>
+              <span>✅</span> Conectado como <strong>{mlConectada.external_user_nickname || `#${mlConectada.external_user_id}`}</strong>
             </div>
             <button onClick={() => desconectar(mlConectada.id)} className="btn-danger text-sm">
               Desconectar
