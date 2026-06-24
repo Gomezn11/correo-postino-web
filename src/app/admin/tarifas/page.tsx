@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { api } from '@/lib/api'
+import { CORDONES } from '@/lib/zonas'
 
 interface Entidad { id: string; nombre: string }
 interface Celda { zona: string; tipo_paquete: string; precio: number }
@@ -159,7 +160,14 @@ export default function AdminTarifasPage() {
                   <tbody className="divide-y dark:divide-gray-800">
                     {zonas.map(z => (
                       <tr key={z} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-                        <td className="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">{z}</td>
+                        <td className="px-4 py-3 align-top">
+                          <div className="font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">{z}</div>
+                          {CORDONES[z] && z !== 'CABA' && (
+                            <div className="text-xs text-gray-400 mt-0.5 max-w-[240px] leading-snug">
+                              {CORDONES[z].join(', ')}
+                            </div>
+                          )}
+                        </td>
                         {tipos.map(t => (
                           <td key={t} className="px-3 py-2">
                             <div className="relative">

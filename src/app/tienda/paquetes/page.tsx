@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import EstadoBadge, { TODOS_ESTADOS, LABELS } from '@/components/EstadoBadge'
+import { ZONAS, CORDONES, cordonDeLocalidad } from '@/lib/zonas'
 
 interface Paquete {
   id: string; qr_interno: string; comprador_nombre: string; comprador_direccion: string
@@ -24,7 +25,6 @@ async function descargarEtiqueta(paqueteId: string, qr: string) {
   URL.revokeObjectURL(url)
 }
 
-const ZONAS = ['Capital', 'Zona 1', 'Zona 2', 'Zona 3']
 const TIPOS = ['normal', 'voluminoso', 'especial']
 
 // Fecha local YYYY-MM-DD del paquete (created_at viene en UTC)
@@ -35,7 +35,7 @@ function fechaLocalISO(iso: string): string {
 
 const FORM_EMPTY = {
   comprador_nombre: '', direccion_calle: '', piso_depto: '', localidad: '',
-  comprador_telefono: '', comprador_dni: '', zona: 'Capital',
+  comprador_telefono: '', comprador_dni: '', zona: '',
   tipo_paquete: 'normal', descripcion_especial: '',
   horario_comercial: false, horario_preferido: '',
 }
@@ -110,7 +110,7 @@ export default function TiendaPaquetesPage() {
         localidad: form.localidad,
         comprador_telefono: form.comprador_telefono,
         comprador_dni: form.comprador_dni || undefined,
-        zona: form.zona,
+        zona: cordonDeLocalidad(form.localidad) || form.zona,
         tipo_paquete: form.tipo_paquete,
         descripcion_especial: form.descripcion_especial || undefined,
         horario_comercial: form.horario_comercial,
@@ -168,8 +168,15 @@ export default function TiendaPaquetesPage() {
               </div>
               <div>
                 <label className="label">Localidad *</label>
-                <input value={form.localidad} onChange={e => set('localidad', e.target.value)}
-                  className="input" required placeholder="CABA" />
+                <select value={form.localidad} onChange={e => set('localidad', e.target.value)}
+                  className="input" required>
+                  <option value="">— Elegí la localidad —</option>
+                  {Object.entries(CORDONES).map(([cordon, locs]) => (
+                    <optgroup key={cordon} label={cordon}>
+                      {locs.map(l => <option key={l} value={l}>{l}</option>)}
+                    </optgroup>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="label">DNI del destinatario</label>
@@ -177,10 +184,10 @@ export default function TiendaPaquetesPage() {
                   className="input" placeholder="20123456" />
               </div>
               <div>
-                <label className="label">Zona *</label>
-                <select value={form.zona} onChange={e => set('zona', e.target.value)} className="input">
-                  {ZONAS.map(z => <option key={z} value={z}>{z}</option>)}
-                </select>
+                <label className="label">Cordón (tarifa)</label>
+                <div className="input bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 flex items-center">
+                  {form.localidad ? (cordonDeLocalidad(form.localidad) || 'Sin clasificar') : '— se calcula con la localidad —'}
+                </div>
               </div>
               <div>
                 <label className="label">Tipo de paquete *</label>
