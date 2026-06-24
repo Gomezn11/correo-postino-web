@@ -59,23 +59,23 @@ export default function TiendaDashboard() {
             {recientes.length === 0 ? (
               <p className="text-gray-400 text-sm">No hay paquetes aún.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <table className="w-full text-sm min-w-[400px]">
                   <thead>
                     <tr className="text-left text-gray-500 border-b">
-                      <th className="pb-2 font-medium">QR</th>
+                      <th className="pb-2 font-medium px-4 sm:px-0">QR</th>
                       <th className="pb-2 font-medium">Destinatario</th>
-                      <th className="pb-2 font-medium">Zona</th>
-                      <th className="pb-2 font-medium">Estado</th>
+                      <th className="pb-2 font-medium hidden sm:table-cell">Zona</th>
+                      <th className="pb-2 font-medium pr-4 sm:pr-0">Estado</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y dark:divide-gray-800">
                     {recientes.map(p => (
                       <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-                        <td className="py-2 font-mono text-xs text-gray-500">{p.qr_interno}</td>
+                        <td className="py-2 font-mono text-xs text-gray-500 px-4 sm:px-0">{p.qr_interno}</td>
                         <td className="py-2">{p.comprador_nombre}</td>
-                        <td className="py-2 text-gray-500">{p.zona}</td>
-                        <td className="py-2"><EstadoBadge estado={p.estado_actual} /></td>
+                        <td className="py-2 text-gray-500 hidden sm:table-cell">{p.zona}</td>
+                        <td className="py-2 pr-4 sm:pr-0"><EstadoBadge estado={p.estado_actual} /></td>
                       </tr>
                     ))}
                   </tbody>
