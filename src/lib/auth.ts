@@ -14,22 +14,24 @@ export function getToken(): string | null {
   return sessionStorage.getItem('cp_token')
 }
 
-export function setAuth(token: string, user: User) {
+export function setAuth(token: string, user: User, refreshToken?: string) {
   sessionStorage.setItem('cp_token', token)
   sessionStorage.setItem('cp_user', JSON.stringify(user))
+  if (refreshToken) sessionStorage.setItem('cp_refresh', refreshToken)
 }
 
 export function clearAuth() {
   sessionStorage.removeItem('cp_token')
   sessionStorage.removeItem('cp_user')
+  sessionStorage.removeItem('cp_refresh')
 }
 
 export async function login(email: string, password: string): Promise<User> {
   // Limpiar cualquier sesión previa antes de entrar (evita cruces admin/tienda
   // en el mismo navegador: token de una cuenta + datos de otra).
   clearAuth()
-  const r = await api.post<{ access_token: string; user: User }>('/auth/login', { email, password })
+  const r = await api.post<{ access_token: string; refresh_token: string; user: User }>('/auth/login', { email, password })
   if (!r.access_token || !r.user) throw new Error('Respuesta de login inválida')
-  setAuth(r.access_token, r.user)
+  setAuth(r.access_token, r.user, r.refresh_token)
   return r.user
 }
