@@ -42,10 +42,17 @@ async function renovarToken(): Promise<string | null> {
   return refreshing
 }
 
+function getLiqPin() {
+  if (typeof window === 'undefined') return null
+  return sessionStorage.getItem('cp_liq_pin')
+}
+
 async function request<T>(path: string, opts: RequestInit = {}, reintento = false): Promise<T> {
   const token = getToken()
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (token) headers['Authorization'] = `Bearer ${token}`
+  const liqPin = getLiqPin()
+  if (liqPin) headers['X-Liq-Pin'] = liqPin
   if (opts.headers) Object.assign(headers, opts.headers)
 
   const r = await fetch(BASE + path, { ...opts, headers })
@@ -70,6 +77,8 @@ async function download(path: string, fallbackName: string, reintento = false): 
   const token = getToken()
   const headers: Record<string, string> = {}
   if (token) headers['Authorization'] = `Bearer ${token}`
+  const liqPin = getLiqPin()
+  if (liqPin) headers['X-Liq-Pin'] = liqPin
 
   const r = await fetch(BASE + path, { headers })
 

@@ -33,6 +33,14 @@ export default function AdminLiquidacionesPage() {
   const [error, setError] = useState('')
   const [bajando, setBajando] = useState('')
 
+  // PIN de acceso a la sección (oculta ganancias a empleados del panel)
+  const [necesitaPin, setNecesitaPin] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return !sessionStorage.getItem('cp_liq_pin')
+  })
+  const [pinInput, setPinInput] = useState('')
+  const [pinError, setPinError] = useState('')
+
   const qs = `anio=${anio}&mes=${mes}`
 
   const cargar = useCallback(() => {
@@ -41,11 +49,28 @@ export default function AdminLiquidacionesPage() {
       tab === 'margen' ? api.get<Margen>(`/admin/liquidaciones/margen?${qs}`).then(setMargen)
       : tab === 'tiendas' ? api.get<ResumenTiendas>(`/admin/liquidaciones/tiendas?${qs}`).then(setTiendas)
       : api.get<ResumenChoferes>(`/admin/liquidaciones/choferes?${qs}`).then(setChoferes)
-    req.catch(e => setError(e instanceof Error ? e.message : 'Error cargando datos'))
-       .finally(() => setLoading(false))
+    req.catch(e => {
+      const msg = e instanceof Error ? e.message : 'Error cargando datos'
+      if (msg.toLowerCase().includes('pin')) {
+        sessionStorage.removeItem('cp_liq_pin')
+        setNecesitaPin(true)
+        setPinError('PIN incorrecto. Probá de nuevo.')
+      } else {
+        setError(msg)
+      }
+    }).finally(() => setLoading(false))
   }, [tab, qs])
 
-  useEffect(() => { cargar() }, [cargar])
+  useEffect(() => { if (!necesitaPin) cargar() }, [cargar, necesitaPin])
+
+  function desbloquear(e: React.FormEvent) {
+    e.preventDefault()
+    if (pinInput.length < 4) { setPinError('Ingresá el PIN de 4 dígitos'); return }
+    sessionStorage.setItem('cp_liq_pin', pinInput)
+    setPinError('')
+    setPinInput('')
+    setNecesitaPin(false)
+  }
 
   async function descargar(path: string, name: string, key: string) {
     setBajando(key)
@@ -54,11 +79,48 @@ export default function AdminLiquidacionesPage() {
     finally { setBajando('') }
   }
 
+  function bloquear() {
+    sessionStorage.removeItem('cp_liq_pin')
+    setMargen(null); setTiendas(null); setChoferes(null)
+    setNecesitaPin(true)
+  }
+
+  // Pantalla de PIN: bloquea ingresos/costos/ganancias hasta ingresar el PIN
+  if (necesitaPin) {
+    return (
+      <div className="max-w-sm mx-auto mt-10">
+        <div className="card text-center space-y-4">
+          <div className="text-4xl">🔒</div>
+          <div>
+            <h1 className="text-xl font-black">Liquidaciones protegidas</h1>
+            <p className="text-sm text-gray-500 mt-1">Ingresá el PIN para ver ingresos, costos y ganancias.</p>
+          </div>
+          <form onSubmit={desbloquear} className="space-y-3">
+            <input
+              type="password" inputMode="numeric" autoFocus maxLength={8}
+              value={pinInput}
+              onChange={e => { setPinInput(e.target.value.replace(/\D/g, '')); setPinError('') }}
+              placeholder="••••"
+              className="input text-center text-2xl tracking-[0.5em]" />
+            {pinError && <p className="text-red-600 text-sm">{pinError}</p>}
+            <button type="submit" className="btn-primary w-full">Desbloquear</button>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black">Liquidaciones</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-black">Liquidaciones</h1>
+            <button onClick={bloquear} title="Bloquear la sección"
+              className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1">
+              🔒 Bloquear
+            </button>
+          </div>
           <p className="text-sm text-gray-500 mt-1">Ingresos de tiendas, costos de choferes y margen del período.</p>
         </div>
         {/* Selector de período */}
