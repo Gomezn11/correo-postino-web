@@ -32,7 +32,7 @@ export default function AdminRepartosPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-black">Repartos</h1>
         <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="input w-auto">
           <option value="">Todos</option>
