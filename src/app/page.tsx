@@ -76,15 +76,11 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* Accesos a portales */}
-        <div className="flex gap-3 mt-10">
+        {/* Acceso al portal de tiendas */}
+        <div className="mt-10">
           <a href="/login?rol=tienda"
             className="bg-white/15 hover:bg-white/25 backdrop-blur text-white px-5 py-3 rounded-xl font-semibold transition-all active:scale-95 text-sm">
             🏪 Soy una tienda
-          </a>
-          <a href="/login?rol=admin"
-            className="bg-white/15 hover:bg-white/25 backdrop-blur text-white px-5 py-3 rounded-xl font-semibold transition-all active:scale-95 text-sm">
-            ⚙️ Panel Admin
           </a>
         </div>
       </div>
