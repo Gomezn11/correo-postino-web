@@ -227,11 +227,10 @@ export default function TiendaPaquetesPage() {
                   <th className="px-4 py-3 font-medium">QR</th>
                   <th className="px-4 py-3 font-medium">Destinatario</th>
                   <th className="px-4 py-3 font-medium hidden md:table-cell">Direccion</th>
-                  <th className="px-4 py-3 font-medium">Zona</th>
+                  <th className="px-4 py-3 font-medium hidden sm:table-cell">Zona</th>
                   <th className="px-4 py-3 font-medium">Estado</th>
                   <th className="px-4 py-3 font-medium hidden md:table-cell">Fecha</th>
-                  <th className="px-4 py-3 font-medium">Etiqueta</th>
-                  <th className="px-4 py-3 font-medium">Tracking</th>
+                  <th className="px-4 py-3 font-medium">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y dark:divide-gray-800">
@@ -240,34 +239,34 @@ export default function TiendaPaquetesPage() {
                     <td className="px-4 py-3 font-mono text-xs text-gray-500">{p.qr_interno}</td>
                     <td className="px-4 py-3 font-medium">{p.comprador_nombre}</td>
                     <td className="px-4 py-3 text-gray-500 hidden md:table-cell text-xs max-w-[180px] truncate">{p.comprador_direccion}</td>
-                    <td className="px-4 py-3 text-gray-500">{p.zona}</td>
+                    <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">{p.zona}</td>
                     <td className="px-4 py-3"><EstadoBadge estado={p.estado_actual} /></td>
                     <td className="px-4 py-3 text-gray-400 text-xs hidden md:table-cell">{formatFecha(p.created_at)}</td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={async () => {
-                          setDescargando(p.id)
-                          try { await descargarEtiqueta(p.id, p.qr_interno) }
-                          catch { alert('Error al generar la etiqueta') }
-                          finally { setDescargando(null) }
-                        }}
-                        disabled={descargando === p.id}
-                        className="text-xs text-blue-600 hover:underline disabled:opacity-40"
-                      >
-                        {descargando === p.id ? 'Generando...' : '🖨 Etiqueta'}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3">
-                      <a href={`/tracking/${p.qr_interno}`} target="_blank"
-                        className="text-brand hover:underline text-xs inline-flex items-center gap-1">
-                        {p.estado_actual === 'en_camino' && (
-                          <span className="relative flex h-2 w-2" title="En camino — seguilo en el mapa">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                          </span>
-                        )}
-                        {p.estado_actual === 'en_camino' ? 'En vivo' : 'Ver'} &rarr;
-                      </a>
+                      <div className="flex flex-col gap-1">
+                        <button
+                          onClick={async () => {
+                            setDescargando(p.id)
+                            try { await descargarEtiqueta(p.id, p.qr_interno) }
+                            catch { alert('Error al generar la etiqueta') }
+                            finally { setDescargando(null) }
+                          }}
+                          disabled={descargando === p.id}
+                          className="text-xs text-blue-600 hover:underline disabled:opacity-40 text-left"
+                        >
+                          {descargando === p.id ? 'Generando...' : '🖨 Etiqueta'}
+                        </button>
+                        <a href={`/tracking/${p.qr_interno}`} target="_blank"
+                          className="text-brand hover:underline text-xs inline-flex items-center gap-1">
+                          {p.estado_actual === 'en_camino' && (
+                            <span className="relative flex h-2 w-2" title="En camino — seguilo en el mapa">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            </span>
+                          )}
+                          {p.estado_actual === 'en_camino' ? 'En vivo' : 'Tracking'} &rarr;
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 ))}
