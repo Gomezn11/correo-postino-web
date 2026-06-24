@@ -205,17 +205,19 @@ export default function AdminLiquidacionesPage() {
                         <td className="px-4 py-3 font-medium">{c.nombre}</td>
                         <td className="px-4 py-3 text-center text-gray-600">{c.cantidad}</td>
                         <td className="px-4 py-3 text-right font-semibold">{money(c.total)}</td>
-                        <td className="px-4 py-3 text-right whitespace-nowrap">
-                          <button disabled={c.cantidad === 0 || bajando === c.chofer_id + 'pdf'}
-                            onClick={() => descargar(`/admin/liquidaciones/chofer/${c.chofer_id}/pdf?${qs}`, `liquidacion_${c.nombre}.pdf`, c.chofer_id + 'pdf')}
-                            className="text-xs text-brand hover:underline disabled:text-gray-300 disabled:no-underline mr-3">
-                            {bajando === c.chofer_id + 'pdf' ? '...' : '↓ PDF'}
-                          </button>
-                          <button disabled={c.cantidad === 0 || bajando === c.chofer_id + 'xls'}
-                            onClick={() => descargar(`/admin/liquidaciones/chofer/${c.chofer_id}/excel?${qs}`, `liquidacion_${c.nombre}.xlsx`, c.chofer_id + 'xls')}
-                            className="text-xs text-brand hover:underline disabled:text-gray-300 disabled:no-underline">
-                            {bajando === c.chofer_id + 'xls' ? '...' : '↓ Excel'}
-                          </button>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex flex-col sm:flex-row sm:justify-end gap-1">
+                            <button disabled={c.cantidad === 0 || bajando === c.chofer_id + 'pdf'}
+                              onClick={() => descargar(`/admin/liquidaciones/chofer/${c.chofer_id}/pdf?${qs}`, `liquidacion_${c.nombre}.pdf`, c.chofer_id + 'pdf')}
+                              className="text-xs text-brand hover:underline disabled:text-gray-300 disabled:no-underline">
+                              {bajando === c.chofer_id + 'pdf' ? '...' : '↓ PDF'}
+                            </button>
+                            <button disabled={c.cantidad === 0 || bajando === c.chofer_id + 'xls'}
+                              onClick={() => descargar(`/admin/liquidaciones/chofer/${c.chofer_id}/excel?${qs}`, `liquidacion_${c.nombre}.xlsx`, c.chofer_id + 'xls')}
+                              className="text-xs text-brand hover:underline disabled:text-gray-300 disabled:no-underline">
+                              {bajando === c.chofer_id + 'xls' ? '...' : '↓ Excel'}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
