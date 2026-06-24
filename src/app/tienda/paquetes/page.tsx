@@ -43,10 +43,12 @@ const FORM_EMPTY = {
 export default function TiendaPaquetesPage() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([])
   const [loading, setLoading] = useState(true)
-  // Estado inicial desde la URL (?estado=...) para los enlaces del dashboard
+  // Estado inicial desde la URL (?estado=...) para los enlaces del dashboard.
+  // Si el estado no es válido (URL vieja, estado eliminado), se ignora y muestra todos.
   const [filtroEstado, setFiltroEstado] = useState(() => {
     if (typeof window === 'undefined') return ''
-    return new URLSearchParams(window.location.search).get('estado') ?? ''
+    const e = new URLSearchParams(window.location.search).get('estado') ?? ''
+    return TODOS_ESTADOS.includes(e) ? e : ''
   })
   const [busqueda, setBusqueda] = useState('')
   const [filtroZona, setFiltroZona] = useState('')
