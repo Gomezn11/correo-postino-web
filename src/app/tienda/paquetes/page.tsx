@@ -243,7 +243,7 @@ export default function TiendaPaquetesPage() {
                     <td className="px-4 py-3"><EstadoBadge estado={p.estado_actual} /></td>
                     <td className="px-4 py-3 text-gray-400 text-xs hidden md:table-cell">{formatFecha(p.created_at)}</td>
                     <td className="px-4 py-3">
-                      <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2 whitespace-nowrap">
                         <button
                           onClick={async () => {
                             setDescargando(p.id)
@@ -252,10 +252,11 @@ export default function TiendaPaquetesPage() {
                             finally { setDescargando(null) }
                           }}
                           disabled={descargando === p.id}
-                          className="text-xs text-blue-600 hover:underline disabled:opacity-40 text-left"
+                          className="text-xs text-blue-600 hover:underline disabled:opacity-40"
                         >
                           {descargando === p.id ? 'Generando...' : '🖨 Etiqueta'}
                         </button>
+                        <span className="text-gray-300">|</span>
                         <a href={`/tracking/${p.qr_interno}`} target="_blank"
                           className="text-brand hover:underline text-xs inline-flex items-center gap-1">
                           {p.estado_actual === 'en_camino' && (
