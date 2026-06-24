@@ -138,26 +138,32 @@ export default function TrackingPage() {
               <div className="text-xs text-gray-400 font-mono">{data.qr_interno}</div>
             </div>
 
-            {/* C2 — Mapa en vivo (solo en camino) */}
+            {/* C2 — Mapa en vivo: SOLO cuando el GPS está fresco (chofer realmente en movimiento).
+                Si apagó la app, el backend deja de exponer la posición y mostramos un estado neutral
+                en vez de un mapa congelado que diga falsamente "viene en camino". */}
             {data.tiene_mapa && (
-              <div className="card p-0 overflow-hidden">
-                <div className="px-4 py-3 border-b bg-brand/5 flex items-center gap-2">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                  </span>
-                  <span className="font-bold text-sm text-gray-800">Tu repartidor está en camino</span>
-                </div>
-                <div className="h-64">
-                  {ubic?.disponible && ubic.lat != null && ubic.lng != null ? (
+              ubic?.disponible && ubic.lat != null && ubic.lng != null ? (
+                <div className="card p-0 overflow-hidden">
+                  <div className="px-4 py-3 border-b bg-brand/5 flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                    </span>
+                    <span className="font-bold text-sm text-gray-800">Tu repartidor está en camino</span>
+                  </div>
+                  <div className="h-64">
                     <MapaEnVivo lat={ubic.lat} lng={ubic.lng} actualizadoAt={ubic.actualizado_at} />
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-gray-400 text-sm text-center px-4">
-                      Esperando la ubicación del repartidor...
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="card flex items-center gap-3">
+                  <div className="text-2xl">🚚</div>
+                  <div>
+                    <div className="font-bold text-sm text-gray-800">Tu paquete está en reparto</div>
+                    <div className="text-xs text-gray-500">Cuando el repartidor esté en movimiento vas a poder seguirlo en vivo en el mapa.</div>
+                  </div>
+                </div>
+              )
             )}
 
             {/* C7 — Reprogramación */}
