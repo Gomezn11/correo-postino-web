@@ -9,9 +9,15 @@ interface Reparto {
 interface RepartosRes { items: Reparto[]; total: number }
 
 const ESTADO_ESTILOS: Record<string, string> = {
-  pendiente:  'bg-yellow-100 text-yellow-800',
-  iniciado:   'bg-indigo-100 text-indigo-800',
+  armando:    'bg-yellow-100 text-yellow-800',
+  en_curso:   'bg-indigo-100 text-indigo-800',
   finalizado: 'bg-green-100 text-green-800',
+}
+
+const ESTADO_LABEL: Record<string, string> = {
+  armando:    'Armando',
+  en_curso:   'En curso',
+  finalizado: 'Finalizado',
 }
 
 function formatFecha(iso: string | null) {
@@ -36,8 +42,8 @@ export default function AdminRepartosPage() {
         <h1 className="text-2xl font-black">Repartos</h1>
         <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="input w-auto">
           <option value="">Todos</option>
-          <option value="pendiente">Pendientes</option>
-          <option value="iniciado">En curso</option>
+          <option value="armando">Armando</option>
+          <option value="en_curso">En curso</option>
           <option value="finalizado">Finalizados</option>
         </select>
       </div>
@@ -64,7 +70,7 @@ export default function AdminRepartosPage() {
                   <td className="px-4 py-3 font-mono text-xs text-gray-500">{r.id.slice(0, 8)}...</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ESTADO_ESTILOS[r.estado] ?? 'bg-gray-100 text-gray-600'}`}>
-                      {r.estado}
+                      {ESTADO_LABEL[r.estado] ?? r.estado}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-500 hidden md:table-cell text-xs">{formatFecha(r.fecha_inicio)}</td>
