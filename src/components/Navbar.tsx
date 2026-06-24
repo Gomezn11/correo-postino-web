@@ -8,9 +8,10 @@ import ThemeToggle from '@/components/ThemeToggle'
 interface NavLink { label: string; href: string; icon: string }
 
 const LINKS_TIENDA: NavLink[] = [
-  { label: 'Dashboard', href: '/tienda/dashboard', icon: '🏠' },
-  { label: 'Paquetes',  href: '/tienda/paquetes',  icon: '📦' },
-  { label: 'Integrar',  href: '/tienda/integrar',  icon: '🔗' },
+  { label: 'Dashboard',    href: '/tienda/dashboard',     icon: '🏠' },
+  { label: 'Paquetes',     href: '/tienda/paquetes',      icon: '📦' },
+  { label: 'Liquidación',  href: '/tienda/liquidaciones', icon: '💰' },
+  { label: 'Integrar',     href: '/tienda/integrar',      icon: '🔗' },
 ]
 const LINKS_ADMIN: NavLink[] = [
   { label: 'Dashboard',     href: '/admin/dashboard',     icon: '🏠' },
