@@ -5,7 +5,7 @@ import { api } from '@/lib/api'
 type Tab = 'margen' | 'tiendas' | 'choferes'
 
 interface FilaTienda { tienda_id: string; nombre: string; cantidad: number; total: number }
-interface FilaChofer { chofer_id: string; nombre: string; cantidad: number; total: number }
+interface FilaChofer { chofer_id: string; nombre: string; cantidad: number; total: number; mostrar_liquidacion?: boolean }
 interface Margen {
   periodo: string; ingresos: number; costos: number; margen: number; margen_pct: number
   desglose_tiendas: FilaTienda[]; desglose_choferes: FilaChofer[]
@@ -83,6 +83,18 @@ export default function AdminLiquidacionesPage() {
     sessionStorage.removeItem('cp_liq_pin')
     setMargen(null); setTiendas(null); setChoferes(null)
     setNecesitaPin(true)
+  }
+
+  async function toggleMostrarLiq(choferId: string, mostrar: boolean) {
+    setChoferes(prev => prev
+      ? { ...prev, choferes: prev.choferes.map(c => c.chofer_id === choferId ? { ...c, mostrar_liquidacion: mostrar } : c) }
+      : prev)
+    try {
+      await api.put(`/admin/liquidaciones/chofer/${choferId}/mostrar-liquidacion`, { mostrar })
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al cambiar la visibilidad')
+      cargar()
+    }
   }
 
   // Pantalla de PIN: bloquea ingresos/costos/ganancias hasta ingresar el PIN
@@ -258,6 +270,7 @@ export default function AdminLiquidacionesPage() {
                       <th className="px-4 py-3 font-medium">Chofer</th>
                       <th className="px-4 py-3 font-medium text-center">Entregas</th>
                       <th className="px-4 py-3 font-medium text-right">Total</th>
+                      <th className="px-4 py-3 font-medium text-center">Ve su liquidación</th>
                       <th className="px-4 py-3 font-medium text-right">Comprobante</th>
                     </tr>
                   </thead>
@@ -267,6 +280,13 @@ export default function AdminLiquidacionesPage() {
                         <td className="px-4 py-3 font-medium">{c.nombre}</td>
                         <td className="px-4 py-3 text-center text-gray-600">{c.cantidad}</td>
                         <td className="px-4 py-3 text-right font-semibold">{money(c.total)}</td>
+                        <td className="px-4 py-3 text-center">
+                          <button onClick={() => toggleMostrarLiq(c.chofer_id, !c.mostrar_liquidacion)}
+                            title={c.mostrar_liquidacion ? 'El chofer ve su liquidación en la app' : 'Oculta para el chofer'}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${c.mostrar_liquidacion ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${c.mostrar_liquidacion ? 'translate-x-6' : 'translate-x-1'}`} />
+                          </button>
+                        </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex flex-col sm:flex-row sm:justify-end gap-1">
                             <button disabled={c.cantidad === 0 || bajando === c.chofer_id + 'pdf'}
