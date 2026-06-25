@@ -41,8 +41,7 @@ function LoginForm() {
     try {
       const user = await login(email, password)
       if (user.role === 'admin') router.push('/admin/dashboard')
-      else if (user.role === 'tienda') router.push('/tienda/dashboard')
-      else if (user.role === 'chofer') router.push('/tienda/dashboard')
+      else if (user.role === 'tienda') router.push('/tienda/paquetes')
       else setError('Tu cuenta no tiene acceso a este portal')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al iniciar sesión')

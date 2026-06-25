@@ -27,6 +27,14 @@ async function descargarEtiqueta(paqueteId: string, qr: string) {
 
 const TIPOS = ['normal', 'voluminoso', 'especial']
 
+// Tarjetas de resumen (clickeables → filtran por estado)
+const ESTADOS_TARJETA = [
+  { key: 'pendiente_colecta', label: 'Pendiente de retiro', color: 'text-yellow-600', bg: 'bg-yellow-50' },
+  { key: 'despachado',        label: 'Despachados',         color: 'text-sky-600',    bg: 'bg-sky-50' },
+  { key: 'en_camino',         label: 'En camino',           color: 'text-indigo-600', bg: 'bg-indigo-50' },
+  { key: 'entregado',         label: 'Entregados',          color: 'text-green-600',  bg: 'bg-green-50' },
+]
+
 // Fecha local YYYY-MM-DD del paquete (created_at viene en UTC)
 function fechaLocalISO(iso: string): string {
   const d = new Date(iso)
@@ -62,13 +70,14 @@ export default function TiendaPaquetesPage() {
   const [descargando, setDescargando] = useState<string | null>(null)
 
   function cargar() {
-    const url = '/paquetes?limit=200' + (filtroEstado ? `&estado=${filtroEstado}` : '')
-    return api.get<{ items: Paquete[] }>(url)
+    // Traemos todos los paquetes de la tienda; los filtros (incluido estado) se aplican
+    // en el cliente, así las tarjetas de resumen siempre cuentan sobre el total.
+    return api.get<{ items: Paquete[] }>('/paquetes?limit=200')
       .then(r => setPaquetes(r.items ?? []))
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { cargar() }, [filtroEstado])
+  useEffect(() => { cargar() }, [])
 
   const filtrados = paquetes.filter(p => {
     const txt = busqueda.toLowerCase()
@@ -76,12 +85,13 @@ export default function TiendaPaquetesPage() {
       p.comprador_nombre.toLowerCase().includes(txt) ||
       p.qr_interno.toLowerCase().includes(txt) ||
       p.comprador_direccion.toLowerCase().includes(txt)
+    const matchEstado = !filtroEstado || p.estado_actual === filtroEstado
     const matchZona = !filtroZona || p.zona === filtroZona
     const matchTipo = !filtroTipo || p.tipo_paquete === filtroTipo
     const fechaP = fechaLocalISO(p.created_at)
     const matchDesde = !fechaDesde || fechaP >= fechaDesde
     const matchHasta = !fechaHasta || fechaP <= fechaHasta
-    return matchBusqueda && matchZona && matchTipo && matchDesde && matchHasta
+    return matchEstado && matchBusqueda && matchZona && matchTipo && matchDesde && matchHasta
   })
 
   const hayFiltros = !!(busqueda || filtroEstado || filtroZona || filtroTipo || fechaDesde || fechaHasta)
@@ -138,6 +148,22 @@ export default function TiendaPaquetesPage() {
         >
           {mostrarForm ? 'Cancelar' : '+ Nuevo paquete'}
         </button>
+      </div>
+
+      {/* Tarjetas de resumen (clic = filtrar por estado) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {ESTADOS_TARJETA.map(c => {
+          const count = paquetes.filter(p => p.estado_actual === c.key).length
+          const activa = filtroEstado === c.key
+          return (
+            <button key={c.key}
+              onClick={() => setFiltroEstado(activa ? '' : c.key)}
+              className={`card ${c.bg} text-left transition-all hover:shadow-md ${activa ? 'ring-2 ring-brand' : ''}`}>
+              <div className={`text-3xl font-black ${c.color}`}>{count}</div>
+              <div className="text-sm text-gray-600 mt-1">{c.label}</div>
+            </button>
+          )
+        })}
       </div>
 
       {/* Formulario nuevo paquete */}
