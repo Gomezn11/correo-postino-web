@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { api } from '@/lib/api'
 import EstadoBadge, { TODOS_ESTADOS, LABELS } from '@/components/EstadoBadge'
+import CargarPaquete from '@/components/CargarPaquete'
 
 interface Paquete {
   id: string; qr_interno: string; comprador_nombre: string; comprador_direccion: string
@@ -9,6 +10,7 @@ interface Paquete {
   etiqueta_impresa: boolean; created_at: string; tienda_nombre?: string | null
 }
 interface Chofer { id: string; nombre: string; email: string }
+interface Tienda { id: string; nombre: string }
 interface HistItem { estado: string; motivo: string | null; created_at: string; chofer_id: string | null; chofer_nombre: string | null }
 interface Auditoria {
   paquete: Paquete & { comprador_telefono?: string }
@@ -35,6 +37,8 @@ const TRANSICIONES: Record<string, string[]> = {
 export default function AdminPaquetesPage() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([])
   const [choferes, setChoferes] = useState<Chofer[]>([])
+  const [tiendas, setTiendas] = useState<Tienda[]>([])
+  const [cargarAbierto, setCargarAbierto] = useState(false)
   const [loading, setLoading] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState('')
   const [filtroChofer, setFiltroChofer] = useState('')
@@ -63,8 +67,8 @@ export default function AdminPaquetesPage() {
       cargar(),
       // Choferes desde la tabla 'choferes' (mismo id que paquete.chofer_id);
       // NO /admin/usuarios, que devuelve el id de Auth y no matchea.
-      api.get<{ choferes: Chofer[] }>('/admin/tarifarios/entidades')
-        .then(r => setChoferes(r.choferes ?? [])).catch(() => {}),
+      api.get<{ choferes: Chofer[]; tiendas: Tienda[] }>('/admin/tarifarios/entidades')
+        .then(r => { setChoferes(r.choferes ?? []); setTiendas(r.tiendas ?? []) }).catch(() => {}),
     ]).finally(() => setLoading(false))
   }, [cargar])
 
@@ -124,7 +128,12 @@ export default function AdminPaquetesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-black">Paquetes</h1>
-        <span className="text-sm text-gray-500">{filtrados.length} resultados</span>
+        <div className="flex items-center gap-3">
+          <button onClick={() => setCargarAbierto(true)} className="btn-primary text-sm">
+            + Cargar paquete
+          </button>
+          <span className="text-sm text-gray-500">{filtrados.length} resultados</span>
+        </div>
       </div>
 
       {/* Filtros */}
@@ -229,6 +238,15 @@ export default function AdminPaquetesPage() {
           </div>
         )}
       </div>
+
+      {/* Modal de carga manual de paquete (depósito) */}
+      {cargarAbierto && (
+        <CargarPaquete
+          tiendas={tiendas}
+          onClose={() => setCargarAbierto(false)}
+          onCreado={() => cargar()}
+        />
+      )}
 
       {/* Modal de trazabilidad */}
       {auditAbierto && (
