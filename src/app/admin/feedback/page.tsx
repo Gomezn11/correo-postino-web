@@ -30,15 +30,40 @@ function colorPromedio(p: number) {
   return 'text-red-500'
 }
 
+// ── Interruptor de la sección Feedback ─────────────────────────────────────
+// true  = muestra cartel "Próximamente" y NO consulta nada (feature reservada).
+// false = dashboard de satisfacción normal. Cambiar a false y deployar para activarlo.
+const PROXIMAMENTE_FEEDBACK = true
+// ──────────────────────────────────────────────────────────────────────────
+
 export default function AdminFeedbackPage() {
   const [data, setData] = useState<Dashboard | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (PROXIMAMENTE_FEEDBACK) return  // feature oculta: no consultar el backend
     api.get<Dashboard>('/admin/feedback/dashboard')
       .then(setData)
       .finally(() => setLoading(false))
   }, [])
+
+  // Cartel "Próximamente": oculta la sección sin romper nada ni cerrar sesión
+  if (PROXIMAMENTE_FEEDBACK) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="card text-center max-w-md py-12 space-y-3">
+          <div className="text-5xl">⭐</div>
+          <h1 className="text-2xl font-black">Satisfacción del cliente</h1>
+          <span className="inline-block bg-brand/10 text-brand text-xs font-bold px-3 py-1 rounded-full">
+            PRÓXIMAMENTE
+          </span>
+          <p className="text-sm text-gray-500">
+            Las encuestas de satisfacción post-entrega están en desarrollo. Muy pronto vas a poder medir la opinión de los compradores por chofer, zona y tienda.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   function estrellasRender(n: number) {
     return (
