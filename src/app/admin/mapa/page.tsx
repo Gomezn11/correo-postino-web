@@ -9,6 +9,12 @@ const MapaChoferes = dynamic(() => import('@/components/MapaChoferes'), {
   loading: () => <div className="h-full flex items-center justify-center text-gray-400">Cargando mapa...</div>,
 })
 
+// ── Interruptor del mapa en vivo ──────────────────────────────────────────
+// true  = muestra cartel "Próximamente" y NO consulta nada (feature reservada).
+// false = mapa en vivo normal. Cambiar a false y deployar para reactivarlo.
+const PROXIMAMENTE = true
+// ──────────────────────────────────────────────────────────────────────────
+
 export default function AdminMapaPage() {
   const [choferes, setChoferes] = useState<ChoferMapa[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,10 +29,29 @@ export default function AdminMapaPage() {
 
   // Polling cada 20s para mover los puntos en vivo
   useEffect(() => {
+    if (PROXIMAMENTE) return  // feature oculta: no consultar el backend
     cargar()
     const id = setInterval(cargar, 20_000)
     return () => clearInterval(id)
   }, [cargar])
+
+  // Cartel "Próximamente": oculta la funcionalidad sin romper nada ni cerrar sesión
+  if (PROXIMAMENTE) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="card text-center max-w-md py-12 space-y-3">
+          <div className="text-5xl">🗺️</div>
+          <h1 className="text-2xl font-black">Mapa en tiempo real</h1>
+          <span className="inline-block bg-brand/10 text-brand text-xs font-bold px-3 py-1 rounded-full">
+            PRÓXIMAMENTE
+          </span>
+          <p className="text-sm text-gray-500">
+            El seguimiento de choferes en vivo está en desarrollo. Muy pronto vas a poder ver a todos tus repartidores moverse en el mapa en tiempo real.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const sinUbicacion = choferes.filter(c => c.lat == null)
 
