@@ -17,6 +17,21 @@ interface Auditoria {
   chofer_actual: { nombre: string; telefono?: string } | null
 }
 
+// Transiciones válidas (espejo de backend/core/estados.py). El menú solo ofrece
+// los cambios posibles desde el estado actual; 'entregado' es final (sin opciones).
+const TRANSICIONES: Record<string, string[]> = {
+  pendiente_colecta: ['despachado', 'reprogramado_por_comprador', 'reprogramado_por_logistica'],
+  despachado: ['en_centro_distribucion', 'en_camino', 'reprogramado_por_comprador'],
+  en_centro_distribucion: ['en_camino', 'reprogramado_por_comprador', 'reprogramado_por_logistica'],
+  en_camino: ['entregado', 'no_entregado_ausente', 'no_entregado_domicilio_no_encontrado', 'reprogramado_por_comprador', 'no_cerrado'],
+  no_entregado_ausente: ['en_camino', 'en_centro_distribucion', 'reprogramado_por_logistica', 'entregado'],
+  no_entregado_domicilio_no_encontrado: ['en_camino', 'en_centro_distribucion', 'reprogramado_por_logistica', 'entregado'],
+  reprogramado_por_comprador: ['en_camino', 'en_centro_distribucion', 'reprogramado_por_logistica'],
+  reprogramado_por_logistica: ['despachado', 'en_camino', 'en_centro_distribucion'],
+  no_cerrado: ['en_camino', 'en_centro_distribucion', 'reprogramado_por_logistica', 'entregado'],
+  entregado: [],
+}
+
 export default function AdminPaquetesPage() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([])
   const [choferes, setChoferes] = useState<Chofer[]>([])
@@ -46,7 +61,10 @@ export default function AdminPaquetesPage() {
     setLoading(true)
     Promise.all([
       cargar(),
-      api.get<Chofer[]>('/admin/usuarios?role=chofer').then(setChoferes).catch(() => {}),
+      // Choferes desde la tabla 'choferes' (mismo id que paquete.chofer_id);
+      // NO /admin/usuarios, que devuelve el id de Auth y no matchea.
+      api.get<{ choferes: Chofer[] }>('/admin/tarifarios/entidades')
+        .then(r => setChoferes(r.choferes ?? [])).catch(() => {}),
     ]).finally(() => setLoading(false))
   }, [cargar])
 
@@ -176,9 +194,10 @@ export default function AdminPaquetesPage() {
                     <td className="px-3 py-2">
                       <select value={p.estado_actual}
                         onChange={e => cambiarEstado(p.id, e.target.value)}
-                        disabled={cambiando === p.id}
-                        className="text-xs border border-gray-200 rounded px-1 py-0.5 bg-white">
-                        {TODOS_ESTADOS.map(e => <option key={e} value={e}>{LABELS[e]}</option>)}
+                        disabled={cambiando === p.id || (TRANSICIONES[p.estado_actual]?.length ?? 0) === 0}
+                        className="text-xs border border-gray-200 rounded px-1 py-0.5 bg-white disabled:opacity-60">
+                        <option value={p.estado_actual}>{LABELS[p.estado_actual] ?? p.estado_actual}</option>
+                        {(TRANSICIONES[p.estado_actual] ?? []).map(e => <option key={e} value={e}>{LABELS[e]}</option>)}
                       </select>
                     </td>
                     <td className="px-3 py-2 hidden md:table-cell">
