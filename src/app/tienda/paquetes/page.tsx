@@ -150,21 +150,23 @@ export default function TiendaPaquetesPage() {
         </button>
       </div>
 
-      {/* Tarjetas de resumen (clic = filtrar por estado) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {ESTADOS_TARJETA.map(c => {
-          const count = paquetes.filter(p => p.estado_actual === c.key).length
-          const activa = filtroEstado === c.key
-          return (
-            <button key={c.key}
-              onClick={() => setFiltroEstado(activa ? '' : c.key)}
-              className={`card ${c.bg} text-left transition-all hover:shadow-md ${activa ? 'ring-2 ring-brand' : ''}`}>
-              <div className={`text-3xl font-black ${c.color}`}>{count}</div>
-              <div className="text-sm text-gray-600 mt-1">{c.label}</div>
-            </button>
-          )
-        })}
-      </div>
+      {/* Tarjetas de resumen (clic = filtrar por estado). Ocultas al crear un paquete */}
+      {!mostrarForm && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {ESTADOS_TARJETA.map(c => {
+            const count = paquetes.filter(p => p.estado_actual === c.key).length
+            const activa = filtroEstado === c.key
+            return (
+              <button key={c.key}
+                onClick={() => setFiltroEstado(activa ? '' : c.key)}
+                className={`card ${c.bg} text-left transition-all hover:shadow-md ${activa ? 'ring-2 ring-brand' : ''}`}>
+                <div className={`text-3xl font-black ${c.color}`}>{count}</div>
+                <div className="text-sm text-gray-600 mt-1">{c.label}</div>
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Formulario nuevo paquete */}
       {mostrarForm && (
@@ -263,6 +265,8 @@ export default function TiendaPaquetesPage() {
         </div>
       )}
 
+      {!mostrarForm && (
+      <>
       {/* Filtros */}
       <div className="card space-y-3">
         <div className="flex flex-wrap gap-3 items-end">
@@ -384,6 +388,8 @@ export default function TiendaPaquetesPage() {
           </div>
         )}
       </div>
+      </>
+      )}
     </div>
   )
 }
