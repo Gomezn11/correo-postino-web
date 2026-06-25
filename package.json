@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@zxing/browser": "^0.1.4",
+    "@zxing/library": "^0.21.3",
     "leaflet": "^1.9.4",
     "next": "14.2.5",
     "react": "^18",
