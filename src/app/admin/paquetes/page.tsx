@@ -34,7 +34,7 @@ export default function AdminPaquetesPage() {
   const [auditLoading, setAuditLoading] = useState(false)
 
   const cargar = useCallback(() => {
-    let url = '/paquetes?limit=300'
+    let url = '/paquetes?limit=200'
     if (filtroEstado) url += `&estado=${filtroEstado}`
     if (filtroChofer) url += `&chofer_id=${filtroChofer}`
     if (fechaDesde) url += `&fecha_desde=${fechaDesde}T00:00:00`
