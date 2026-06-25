@@ -6,7 +6,7 @@ import EstadoBadge, { TODOS_ESTADOS, LABELS } from '@/components/EstadoBadge'
 interface Paquete {
   id: string; qr_interno: string; comprador_nombre: string; comprador_direccion: string
   zona: string; tipo_paquete: string; estado_actual: string; chofer_id: string | null
-  etiqueta_impresa: boolean; created_at: string
+  etiqueta_impresa: boolean; created_at: string; tienda_nombre?: string | null
 }
 interface Chofer { id: string; nombre: string; email: string }
 interface HistItem { estado: string; motivo: string | null; created_at: string; chofer_id: string | null; chofer_nombre: string | null }
@@ -69,7 +69,7 @@ export default function AdminPaquetesPage() {
   }, [cargar])
 
   const filtrados = paquetes.filter(p =>
-    !busqueda || [p.comprador_nombre, p.qr_interno, p.comprador_direccion, p.zona]
+    !busqueda || [p.comprador_nombre, p.qr_interno, p.comprador_direccion, p.zona, p.tienda_nombre ?? '']
       .some(v => v.toLowerCase().includes(busqueda.toLowerCase()))
   )
 
@@ -178,6 +178,7 @@ export default function AdminPaquetesPage() {
                 <tr className="text-left text-gray-500">
                   <th className="px-3 py-3 font-medium">QR</th>
                   <th className="px-3 py-3 font-medium">Destinatario</th>
+                  <th className="px-3 py-3 font-medium hidden md:table-cell">Tienda</th>
                   <th className="px-3 py-3 font-medium hidden lg:table-cell">Zona</th>
                   <th className="px-3 py-3 font-medium">Estado</th>
                   <th className="px-3 py-3 font-medium hidden md:table-cell">Chofer</th>
@@ -190,6 +191,7 @@ export default function AdminPaquetesPage() {
                   <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                     <td className="px-3 py-2 font-mono text-xs text-gray-500">{p.qr_interno}</td>
                     <td className="px-3 py-2 font-medium max-w-[150px] truncate">{p.comprador_nombre}</td>
+                    <td className="px-3 py-2 text-gray-500 hidden md:table-cell max-w-[140px] truncate">{p.tienda_nombre ?? '—'}</td>
                     <td className="px-3 py-2 text-gray-500 hidden lg:table-cell">{p.zona}</td>
                     <td className="px-3 py-2">
                       <select value={p.estado_actual}
