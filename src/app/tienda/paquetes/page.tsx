@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import EstadoBadge, { TODOS_ESTADOS, LABELS } from '@/components/EstadoBadge'
-import { ZONAS, CORDONES, cordonDeLocalidad } from '@/lib/zonas'
+import { CORDONES, cordonDeLocalidad } from '@/lib/zonas'
 
 interface Paquete {
   id: string; qr_interno: string; comprador_nombre: string; comprador_direccion: string
@@ -110,7 +110,7 @@ export default function TiendaPaquetesPage() {
         localidad: form.localidad,
         comprador_telefono: form.comprador_telefono,
         comprador_dni: form.comprador_dni || undefined,
-        zona: cordonDeLocalidad(form.localidad) || form.zona,
+        zona: form.localidad || form.zona,
         tipo_paquete: form.tipo_paquete,
         descripcion_especial: form.descripcion_especial || undefined,
         horario_comercial: form.horario_comercial,
@@ -184,9 +184,9 @@ export default function TiendaPaquetesPage() {
                   className="input" placeholder="20123456" />
               </div>
               <div>
-                <label className="label">Cordón (tarifa)</label>
+                <label className="label">Cordón</label>
                 <div className="input bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 flex items-center">
-                  {form.localidad ? (cordonDeLocalidad(form.localidad) || 'Sin clasificar') : '— se calcula con la localidad —'}
+                  {form.localidad ? (cordonDeLocalidad(form.localidad) || 'Sin clasificar') : '— se completa con la localidad —'}
                 </div>
               </div>
               <div>
@@ -253,10 +253,14 @@ export default function TiendaPaquetesPage() {
             </select>
           </div>
           <div>
-            <label className="label">Zona</label>
+            <label className="label">Localidad</label>
             <select value={filtroZona} onChange={e => setFiltroZona(e.target.value)} className="input w-auto">
               <option value="">Todas</option>
-              {ZONAS.map(z => <option key={z} value={z}>{z}</option>)}
+              {Object.entries(CORDONES).map(([cordon, locs]) => (
+                <optgroup key={cordon} label={cordon}>
+                  {locs.map(l => <option key={l} value={l}>{l}</option>)}
+                </optgroup>
+              ))}
             </select>
           </div>
           <div>

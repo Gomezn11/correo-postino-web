@@ -1,7 +1,7 @@
 /**
- * Zonas de reparto = CABA + cordones del AMBA.
+ * Zonas de tarifa = PARTIDOS (localidades) de CABA + AMBA.
+ * Cada partido tiene su propia tarifa. El cordón es solo un agrupador visual.
  * Espejo de backend/core/zonas.py — mantener ambos sincronizados.
- * El precio se define por cordón; cada localidad pertenece a un cordón.
  */
 export const CORDONES: Record<string, string[]> = {
   'CABA': ['CABA'],
@@ -22,15 +22,15 @@ export const CORDONES: Record<string, string[]> = {
   ],
 }
 
-/** Cordones en orden (para grillas y selectores). */
-export const ZONAS: string[] = Object.keys(CORDONES)
+/** Todos los partidos en orden (CABA, luego cordón 1, 2, 3). Unidad de tarifa. */
+export const ZONAS: string[] = Object.values(CORDONES).flat()
 
-/** Mapa localidad -> cordón. */
-export const ZONA_POR_LOCALIDAD: Record<string, string> = Object.fromEntries(
+/** Mapa partido -> cordón (solo para agrupar/ordenar visualmente). */
+export const CORDON_POR_LOCALIDAD: Record<string, string> = Object.fromEntries(
   Object.entries(CORDONES).flatMap(([cordon, locs]) => locs.map(l => [l, cordon]))
 )
 
-/** Cordón al que pertenece una localidad (o '' si no se reconoce). */
+/** Cordón (grupo visual) al que pertenece un partido (o '' si no se reconoce). */
 export function cordonDeLocalidad(localidad: string): string {
-  return ZONA_POR_LOCALIDAD[localidad.trim()] ?? ''
+  return CORDON_POR_LOCALIDAD[localidad.trim()] ?? ''
 }

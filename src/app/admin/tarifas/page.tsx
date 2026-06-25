@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Fragment } from 'react'
 import { api } from '@/lib/api'
 import { CORDONES } from '@/lib/zonas'
 
@@ -151,39 +151,44 @@ export default function AdminTarifasPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 dark:bg-gray-800/60 border-b dark:border-gray-800">
                     <tr className="text-left text-gray-500">
-                      <th className="px-4 py-3 font-medium">Zona</th>
+                      <th className="px-4 py-3 font-medium">Partido</th>
                       {tipos.map(t => (
                         <th key={t} className="px-4 py-3 font-medium text-center">{TIPO_LABEL[t] ?? t}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y dark:divide-gray-800">
-                    {zonas.map(z => (
-                      <tr key={z} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-                        <td className="px-4 py-3 align-top">
-                          <div className="font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">{z}</div>
-                          {CORDONES[z] && z !== 'CABA' && (
-                            <div className="text-xs text-gray-400 mt-0.5 max-w-[240px] leading-snug">
-                              {CORDONES[z].join(', ')}
-                            </div>
-                          )}
-                        </td>
-                        {tipos.map(t => (
-                          <td key={t} className="px-3 py-2">
-                            <div className="relative">
-                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
-                              <input
-                                inputMode="decimal"
-                                value={precios[`${z}|${t}`] ?? ''}
-                                onChange={e => setCelda(z, t, e.target.value)}
-                                placeholder="0"
-                                className="w-full border border-gray-300 rounded-lg pl-6 pr-2 py-1.5 text-sm text-right
-                                  focus:outline-none focus:ring-2 focus:ring-brand/40"
-                              />
-                            </div>
-                          </td>
+                    {Object.entries(CORDONES).map(([cordon, locs]) => (
+                      <Fragment key={cordon}>
+                        {cordon !== 'CABA' && (
+                          <tr className="bg-gray-50 dark:bg-gray-800/40">
+                            <td colSpan={tipos.length + 1}
+                              className="px-4 py-2 text-xs font-bold uppercase tracking-wide text-gray-500">
+                              {cordon}
+                            </td>
+                          </tr>
+                        )}
+                        {locs.map(loc => (
+                          <tr key={loc} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
+                            <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">{loc}</td>
+                            {tipos.map(t => (
+                              <td key={t} className="px-3 py-2">
+                                <div className="relative">
+                                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                  <input
+                                    inputMode="decimal"
+                                    value={precios[`${loc}|${t}`] ?? ''}
+                                    onChange={e => setCelda(loc, t, e.target.value)}
+                                    placeholder="0"
+                                    className="w-full border border-gray-300 rounded-lg pl-6 pr-2 py-1.5 text-sm text-right
+                                      focus:outline-none focus:ring-2 focus:ring-brand/40"
+                                  />
+                                </div>
+                              </td>
+                            ))}
+                          </tr>
                         ))}
-                      </tr>
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>
