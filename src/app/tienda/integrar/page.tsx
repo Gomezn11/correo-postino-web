@@ -7,33 +7,60 @@ interface Integracion {
   activo: boolean; modo_importacion: string; created_at: string
 }
 
+interface EstadoTN {
+  conectado: boolean; store_id?: string; conectado_at?: string; integracion_id?: string
+}
+
 export default function TiendaIntegrarPage() {
   const [integraciones, setIntegraciones] = useState<Integracion[]>([])
-  const [mlUrl, setMlUrl] = useState<string | null>(null)
+  const [estadoTN, setEstadoTN] = useState<EstadoTN | null>(null)
   const [loading, setLoading] = useState(true)
-  const [conectando, setConectando] = useState(false)
+  const [conectandoML, setConectandoML] = useState(false)
+  const [conectandoTN, setConectandoTN] = useState(false)
 
   useEffect(() => {
-    api.get<Integracion[]>('/integraciones')
-      .then(setIntegraciones)
-      .finally(() => setLoading(false))
+    Promise.all([
+      api.get<Integracion[]>('/integraciones'),
+      api.get<EstadoTN>('/tiendanube/estado'),
+    ]).then(([ints, tn]) => {
+      setIntegraciones(ints)
+      setEstadoTN(tn)
+    }).finally(() => setLoading(false))
   }, [])
 
   async function conectarML() {
-    setConectando(true)
+    setConectandoML(true)
     try {
       const r = await api.get<{ auth_url: string }>('/integraciones/mercadolibre/conectar')
       window.location.href = r.auth_url
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : 'Error')
-      setConectando(false)
+      setConectandoML(false)
     }
   }
 
-  async function desconectar(id: string) {
-    if (!confirm('¿Desconectar esta integración?')) return
+  async function conectarTN() {
+    setConectandoTN(true)
+    try {
+      const r = await api.get<{ auth_url: string }>('/tiendanube/conectar')
+      window.location.href = r.auth_url
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Error al iniciar la conexión con Tienda Nube')
+      setConectandoTN(false)
+    }
+  }
+
+  async function desconectarML(id: string) {
+    if (!confirm('¿Desconectar Mercado Libre?')) return
     await api.delete(`/integraciones/${id}`)
     setIntegraciones(prev => prev.filter(i => i.id !== id))
+  }
+
+  async function desconectarTN() {
+    if (!estadoTN?.integracion_id) return
+    if (!confirm('¿Desconectar Tienda Nube? Los pedidos dejarán de importarse automáticamente.')) return
+    await api.delete(`/integraciones/${estadoTN.integracion_id}`)
+    setEstadoTN({ conectado: false })
   }
 
   async function cambiarModo(id: string, modo: string) {
@@ -97,27 +124,63 @@ export default function TiendaIntegrarPage() {
               )}
             </div>
 
-            <button onClick={() => desconectar(mlConectada.id)} className="btn-danger text-sm">
+            <button onClick={() => desconectarML(mlConectada.id)} className="btn-danger text-sm">
               Desconectar
             </button>
           </div>
         ) : (
-          <button onClick={conectarML} disabled={conectando} className="btn-primary disabled:opacity-50">
-            {conectando ? 'Redirigiendo...' : 'Conectar con Mercado Libre'}
+          <button onClick={conectarML} disabled={conectandoML} className="btn-primary disabled:opacity-50">
+            {conectandoML ? 'Redirigiendo...' : 'Conectar con Mercado Libre'}
           </button>
         )}
       </div>
 
-      {/* Tienda Nube — próximamente */}
-      <div className="card space-y-3 opacity-60">
+      {/* Tienda Nube */}
+      <div className="card space-y-4">
         <div className="flex items-center gap-3">
           <span className="text-3xl">☁️</span>
           <div>
             <h2 className="font-bold">Tienda Nube</h2>
-            <p className="text-sm text-gray-500">Próximamente disponible</p>
+            <p className="text-sm text-gray-500">
+              Importación automática de pedidos pagados · Actualización de estado en tiempo real
+            </p>
           </div>
         </div>
-        <button disabled className="btn-ghost text-sm opacity-50">Próximamente</button>
+
+        {loading ? (
+          <div className="text-gray-400 text-sm">Verificando...</div>
+        ) : estadoTN?.conectado ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
+              <span>✅</span> Conectado · Store ID <strong>#{estadoTN.store_id}</strong>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-sm text-blue-700 dark:text-blue-300 space-y-1">
+              <p className="font-semibold">¿Qué hace esta integración?</p>
+              <ul className="list-disc list-inside space-y-0.5 text-xs">
+                <li>Importa automáticamente cada pedido pagado como paquete</li>
+                <li>Incluye todos los datos del comprador y los productos del pedido</li>
+                <li>Actualiza el estado en Tienda Nube cuando el chofer colecta, sale a entregar o entrega</li>
+              </ul>
+            </div>
+            <button onClick={desconectarTN} className="btn-danger text-sm">
+              Desconectar
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-400 space-y-1">
+              <p className="font-semibold text-gray-700 dark:text-gray-300">Al conectar vas a obtener:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Importación automática de cada venta pagada</li>
+                <li>Nombre, dirección y detalle completo de los productos</li>
+                <li>Estado del envío actualizado en Tienda Nube en tiempo real</li>
+              </ul>
+            </div>
+            <button onClick={conectarTN} disabled={conectandoTN} className="btn-primary disabled:opacity-50">
+              {conectandoTN ? 'Redirigiendo a Tienda Nube...' : 'Conectar con Tienda Nube'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
