@@ -37,7 +37,7 @@ export default function AdminRepartosPage() {
   useEffect(() => {
     setLoading(true)
     // El endpoint devuelve un array de repartos (no { items })
-    api.get<Reparto[]>(`/repartos?limit=100${filtroEstado ? `&estado=${filtroEstado}` : ''}`)
+    api.get<Reparto[]>(`/repartos${filtroEstado ? `?estado=${filtroEstado}` : ''}`)
       .then(r => setRepartos(Array.isArray(r) ? r : []))
       .finally(() => setLoading(false))
   }, [filtroEstado])
