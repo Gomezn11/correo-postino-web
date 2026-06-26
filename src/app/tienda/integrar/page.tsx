@@ -8,7 +8,7 @@ interface Integracion {
 }
 
 interface EstadoTN {
-  conectado: boolean; store_id?: string; conectado_at?: string; integracion_id?: string
+  conectado: boolean; store_id?: string; conectado_at?: string; integracion_id?: string; modo_importacion?: string
 }
 
 export default function TiendaIntegrarPage() {
@@ -61,6 +61,17 @@ export default function TiendaIntegrarPage() {
     if (!confirm('¿Desconectar Tienda Nube? Los pedidos dejarán de importarse automáticamente.')) return
     await api.delete(`/integraciones/${estadoTN.integracion_id}`)
     setEstadoTN({ conectado: false })
+  }
+
+  async function cambiarModoTN(modo: string) {
+    if (!estadoTN?.integracion_id) return
+    setEstadoTN(prev => prev ? { ...prev, modo_importacion: modo } : prev)
+    try {
+      await api.put(`/integraciones/${estadoTN.integracion_id}/modo`, { modo })
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Error al cambiar el modo')
+      api.get<EstadoTN>('/tiendanube/estado').then(setEstadoTN)
+    }
   }
 
   async function cambiarModo(id: string, modo: string) {
@@ -154,14 +165,33 @@ export default function TiendaIntegrarPage() {
             <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
               <span>✅</span> Conectado · Store ID <strong>#{estadoTN.store_id}</strong>
             </div>
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-sm text-blue-700 dark:text-blue-300 space-y-1">
-              <p className="font-semibold">¿Qué hace esta integración?</p>
-              <ul className="list-disc list-inside space-y-0.5 text-xs">
-                <li>Importa automáticamente cada pedido pagado como paquete</li>
-                <li>Incluye todos los datos del comprador y los productos del pedido</li>
-                <li>Actualiza el estado en Tienda Nube cuando el chofer colecta, sale a entregar o entrega</li>
-              </ul>
+
+            {/* Modo de importación */}
+            <div className="border-t dark:border-gray-800 pt-3 space-y-2">
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">¿Qué hacemos con tus ventas de Tienda Nube?</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => cambiarModoTN('auto')}
+                  className={`text-left p-3 rounded-xl border-2 transition-all ${
+                    estadoTN.modo_importacion !== 'manual'
+                      ? 'border-brand bg-brand/5' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}>
+                  <div className="font-bold text-sm">⚡ Automático</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Se importan todas las ventas</div>
+                </button>
+                <button onClick={() => cambiarModoTN('manual')}
+                  className={`text-left p-3 rounded-xl border-2 transition-all ${
+                    estadoTN.modo_importacion === 'manual'
+                      ? 'border-brand bg-brand/5' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}>
+                  <div className="font-bold text-sm">✋ Manual</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Vos elegís cuáles distribuir</div>
+                </button>
+              </div>
+              {estadoTN.modo_importacion === 'manual' && (
+                <a href="/tienda/ventas-tn" className="inline-block text-sm text-brand hover:underline pt-1">
+                  → Ver ventas pendientes de importar
+                </a>
+              )}
             </div>
+
             <button onClick={desconectarTN} className="btn-danger text-sm">
               Desconectar
             </button>
