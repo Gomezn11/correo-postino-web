@@ -47,19 +47,40 @@ export default function AdminPaquetesPage() {
   const [busqueda, setBusqueda] = useState('')
   const [cambiando, setCambiando] = useState<string | null>(null)
   const [asignando, setAsignando] = useState<string | null>(null)
+  const [total, setTotal] = useState(0)
+  const [loadingMas, setLoadingMas] = useState(false)
   // Trazabilidad
   const [auditAbierto, setAuditAbierto] = useState(false)
   const [auditoria, setAuditoria] = useState<Auditoria | null>(null)
   const [auditLoading, setAuditLoading] = useState(false)
 
   const cargar = useCallback(() => {
-    let url = '/paquetes?limit=200'
+    let url = '/paquetes?limit=500'
     if (filtroEstado) url += `&estado=${filtroEstado}`
     if (filtroChofer) url += `&chofer_id=${filtroChofer}`
     if (fechaDesde) url += `&fecha_desde=${fechaDesde}T00:00:00`
     if (fechaHasta) url += `&fecha_hasta=${fechaHasta}T23:59:59`
-    return api.get<{ items: Paquete[] }>(url).then(r => setPaquetes(r.items ?? []))
+    return api.get<{ items: Paquete[]; total: number }>(url).then(r => {
+      setPaquetes(r.items ?? [])
+      setTotal(r.total ?? 0)
+    })
   }, [filtroEstado, filtroChofer, fechaDesde, fechaHasta])
+
+  async function cargarMas() {
+    setLoadingMas(true)
+    try {
+      let url = `/paquetes?limit=500&offset=${paquetes.length}`
+      if (filtroEstado) url += `&estado=${filtroEstado}`
+      if (filtroChofer) url += `&chofer_id=${filtroChofer}`
+      if (fechaDesde) url += `&fecha_desde=${fechaDesde}T00:00:00`
+      if (fechaHasta) url += `&fecha_hasta=${fechaHasta}T23:59:59`
+      const r = await api.get<{ items: Paquete[]; total: number }>(url)
+      setPaquetes(prev => [...prev, ...(r.items ?? [])])
+      setTotal(r.total ?? 0)
+    } finally {
+      setLoadingMas(false)
+    }
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -235,6 +256,19 @@ export default function AdminPaquetesPage() {
                 ))}
               </tbody>
             </table>
+            <div className="px-4 py-3 border-t dark:border-gray-800 flex items-center justify-between gap-4">
+              <span className="text-xs text-gray-400">
+                {paquetes.length < total
+                  ? `Mostrando ${paquetes.length} de ${total} paquetes`
+                  : `${total} paquetes`}
+              </span>
+              {paquetes.length < total && (
+                <button onClick={cargarMas} disabled={loadingMas}
+                  className="text-sm text-brand hover:underline font-medium disabled:opacity-50 shrink-0">
+                  {loadingMas ? 'Cargando...' : `Cargar más (${total - paquetes.length})`}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
