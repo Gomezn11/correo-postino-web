@@ -68,13 +68,24 @@ export default function TiendaPaquetesPage() {
   const [creando, setCreando] = useState(false)
   const [error, setError] = useState('')
   const [descargando, setDescargando] = useState<string | null>(null)
+  const [total, setTotal] = useState(0)
+  const [loadingMas, setLoadingMas] = useState(false)
 
   function cargar() {
-    // Traemos todos los paquetes de la tienda; los filtros (incluido estado) se aplican
-    // en el cliente, así las tarjetas de resumen siempre cuentan sobre el total.
-    return api.get<{ items: Paquete[] }>('/paquetes?limit=200')
-      .then(r => setPaquetes(r.items ?? []))
+    return api.get<{ items: Paquete[]; total: number }>('/paquetes?limit=500')
+      .then(r => { setPaquetes(r.items ?? []); setTotal(r.total ?? 0) })
       .finally(() => setLoading(false))
+  }
+
+  async function cargarMas() {
+    setLoadingMas(true)
+    try {
+      const r = await api.get<{ items: Paquete[]; total: number }>(`/paquetes?limit=500&offset=${paquetes.length}`)
+      setPaquetes(prev => [...prev, ...(r.items ?? [])])
+      setTotal(r.total ?? 0)
+    } finally {
+      setLoadingMas(false)
+    }
   }
 
   useEffect(() => { cargar() }, [])
@@ -384,7 +395,19 @@ export default function TiendaPaquetesPage() {
                 ))}
               </tbody>
             </table>
-            <div className="px-4 py-2 text-xs text-gray-400 border-t">{filtrados.length} paquetes</div>
+            <div className="px-4 py-3 border-t dark:border-gray-800 flex items-center justify-between gap-4">
+              <span className="text-xs text-gray-400">
+                {paquetes.length < total
+                  ? `Mostrando ${paquetes.length} de ${total} paquetes`
+                  : `${total} paquetes en total`}
+              </span>
+              {paquetes.length < total && (
+                <button onClick={cargarMas} disabled={loadingMas}
+                  className="text-sm text-brand hover:underline font-medium disabled:opacity-50 shrink-0">
+                  {loadingMas ? 'Cargando...' : `Cargar más (${total - paquetes.length})`}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
