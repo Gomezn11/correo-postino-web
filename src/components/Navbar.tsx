@@ -14,7 +14,6 @@ const LINKS_TIENDA: NavLink[] = [
   { label: 'Integrar',    href: '/tienda/integrar',      icon: '🔗' },
 ]
 const LINKS_ADMIN: NavLink[] = [
-  { label: 'Dashboard',     href: '/admin/dashboard',     icon: '🏠' },
   { label: 'Paquetes',      href: '/admin/paquetes',      icon: '📦' },
   { label: 'Choferes',      href: '/admin/choferes',      icon: '🚚' },
   { label: 'Tiendas',       href: '/admin/tiendas',       icon: '🏪' },
