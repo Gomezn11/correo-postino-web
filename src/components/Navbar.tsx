@@ -10,6 +10,7 @@ interface NavLink { label: string; href: string; icon: string }
 const LINKS_TIENDA: NavLink[] = [
   { label: 'Paquetes',     href: '/tienda/paquetes',      icon: '📦' },
   { label: 'Ventas ML',    href: '/tienda/ventas-ml',     icon: '🛒' },
+  { label: 'Ventas TN',    href: '/tienda/ventas-tn',     icon: '☁️' },
   { label: 'Liquidación',  href: '/tienda/liquidaciones', icon: '💰' },
   { label: 'Integrar',     href: '/tienda/integrar',      icon: '🔗' },
 ]
