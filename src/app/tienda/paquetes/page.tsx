@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import EstadoBadge, { TODOS_ESTADOS, LABELS } from '@/components/EstadoBadge'
 import { CORDONES, cordonDeLocalidad } from '@/lib/zonas'
+import QRCode from 'react-qr-code'
 
 interface Paquete {
   id: string; qr_interno: string; comprador_nombre: string; comprador_direccion: string
   zona: string; tipo_paquete: string; estado_actual: string; created_at: string
+  origen?: string; ml_shipment_id?: string | null
 }
 
 async function descargarEtiqueta(paqueteId: string, qr: string) {
@@ -68,6 +70,7 @@ export default function TiendaPaquetesPage() {
   const [creando, setCreando] = useState(false)
   const [error, setError] = useState('')
   const [descargando, setDescargando] = useState<string | null>(null)
+  const [qrModal, setQrModal]         = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [loadingMas, setLoadingMas] = useState(false)
 
@@ -366,18 +369,27 @@ export default function TiendaPaquetesPage() {
                     <td className="px-4 py-3 text-gray-400 text-xs hidden md:table-cell">{formatFecha(p.created_at)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 whitespace-nowrap">
-                        <button
-                          onClick={async () => {
-                            setDescargando(p.id)
-                            try { await descargarEtiqueta(p.id, p.qr_interno) }
-                            catch { alert('Error al generar la etiqueta') }
-                            finally { setDescargando(null) }
-                          }}
-                          disabled={descargando === p.id}
-                          className="text-xs text-blue-600 hover:underline disabled:opacity-40"
-                        >
-                          {descargando === p.id ? 'Generando...' : '🖨 Etiqueta'}
-                        </button>
+                        {p.origen === 'mercadolibre' && p.ml_shipment_id ? (
+                          <button
+                            onClick={() => setQrModal(p.ml_shipment_id!)}
+                            className="text-xs text-orange-600 hover:underline"
+                          >
+                            📱 QR ML
+                          </button>
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              setDescargando(p.id)
+                              try { await descargarEtiqueta(p.id, p.qr_interno) }
+                              catch { alert('Error al generar la etiqueta') }
+                              finally { setDescargando(null) }
+                            }}
+                            disabled={descargando === p.id}
+                            className="text-xs text-blue-600 hover:underline disabled:opacity-40"
+                          >
+                            {descargando === p.id ? 'Generando...' : '🖨 Etiqueta'}
+                          </button>
+                        )}
                         <span className="text-gray-300">|</span>
                         <a href={`/tracking/${p.qr_interno}`} target="_blank"
                           className="text-brand hover:underline text-xs inline-flex items-center gap-1">
@@ -414,5 +426,33 @@ export default function TiendaPaquetesPage() {
       </>
       )}
     </div>
+
+    {/* Modal QR Mercado Libre */}
+    {qrModal && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        onClick={() => setQrModal(null)}
+      >
+        <div
+          className="bg-white dark:bg-gray-900 rounded-2xl p-6 flex flex-col items-center gap-4 shadow-2xl"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="text-center">
+            <p className="font-black text-lg">QR Mercado Libre</p>
+            <p className="text-xs text-gray-500 mt-1">El chofer escanea este código</p>
+          </div>
+          <div className="bg-white p-3 rounded-xl border">
+            <QRCode value={qrModal} size={180} />
+          </div>
+          <p className="font-mono text-xs text-gray-400">{qrModal}</p>
+          <button
+            onClick={() => setQrModal(null)}
+            className="btn-secondary w-full"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    )}
   )
 }
